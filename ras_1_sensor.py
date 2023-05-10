@@ -104,14 +104,15 @@ def detect_and_measure_temperature():
         temperature = (count * 0.0625)
         humidity = None
 
-# 중심점 좌표 전송
-if len(objects) > 0:
-    center_x, center_y = objects[0]
-    message = "{},{}\n".format(center_x, center_y)
-    ser.write(message.encode()) # 시리얼 포트로 중심점 좌표를 전송
+    # 중심점 좌표 전송
+    if len(objects) > 0:
+        center_x, center_y = objects[0]
+        message = "{},{}\n".format(center_x, center_y)
+        ser.write(message.encode()) # 시리얼 포트로 중심점 좌표를 전송
 
-# 온도 값 반환
-return temperature, humidity
+    # 온도 값 반환
+    return temperature, humidity
+
 
 
 
