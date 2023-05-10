@@ -81,37 +81,37 @@ def detect_and_measure_temperature():
         for i in range(6):
             GPIO.output(DTSPin[i], GPIO.HIGH)
         GPIO.output(DTSPin[0], GPIO.LOW)
-            count = 0
-            for i in range(6):
-                GPIO.output(DTSPin[i], GPIO.LOW)
+        count = 0
+        for i in range(6):
+            GPIO.output(DTSPin[i], GPIO.LOW)
+        while GPIO.input(DTSPin[5]) == GPIO.LOW:
+            pass
+        while GPIO.input(DTSPin[5]) == GPIO.HIGH:
+            pass
+        for i in range(32):
+            GPIO.output(DTSPin[0], (i & 0x01))
+            GPIO.output(DTSPin[1], (i & 0x02))
+            GPIO.output(DTSPin[2], (i & 0x04))
+            GPIO.output(DTSPin[3], (i & 0x08))
+            GPIO.output(DTSPin[4], (i & 0x10))
             while GPIO.input(DTSPin[5]) == GPIO.LOW:
                 pass
-            while GPIO.input(DTSPin[5]) == GPIO.HIGH:
-                pass
-            for i in range(32):
-                GPIO.output(DTSPin[0], (i & 0x01))
-                GPIO.output(DTSPin[1], (i & 0x02))
-                GPIO.output(DTSPin[2], (i & 0x04))
-                GPIO.output(DTSPin[3], (i & 0x08))
-                GPIO.output(DTSPin[4], (i & 0x10))
-                while GPIO.input(DTSPin[5]) == GPIO.LOW:
-                    pass
-                count <<= 1
-                if GPIO.input(DTSPin[5]) == GPIO.HIGH:
-                    count |= 0x01
+            count <<= 1
+            if GPIO.input(DTSPin[5]) == GPIO.HIGH:
+                count |= 0x01
 
-            # 계산된 온도 값 반환
-            temperature = (count * 0.0625)
-            humidity = None
-    
-    # 중심점 좌표 전송
-    if len(objects) > 0:
-        center_x, center_y = objects[0]
-        message = "{},{}\n".format(center_x, center_y)
-        ser.write(message.encode()) # 시리얼 포트로 중심점 좌표를 전송
+        # 계산된 온도 값 반환
+        temperature = (count * 0.0625)
+        humidity = None
 
-    # 온도 값 반환
-    return temperature, humidity
+# 중심점 좌표 전송
+if len(objects) > 0:
+    center_x, center_y = objects[0]
+    message = "{},{}\n".format(center_x, center_y)
+    ser.write(message.encode()) # 시리얼 포트로 중심점 좌표를 전송
+
+# 온도 값 반환
+return temperature, humidity
 
 
 
