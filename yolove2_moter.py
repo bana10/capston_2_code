@@ -35,7 +35,7 @@ layer_names = net.getLayerNames()
 output_layers = net.getUnconnectedOutLayersNames()
 
 # 카메라 객체 생성
-cap = cv2.VideoCapture(-1)
+cap = cv2.VideoCapture(0)
 
 while True:
     # 카메라에서 이미지 얻기
