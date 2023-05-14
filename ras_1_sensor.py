@@ -108,6 +108,7 @@ def detect_and_measure_temperature():
         # 계산된 온도 값 반환
         temperature = (count * 0.0625)
         humidity = None
+        print("온도 : %d".format(temperature))
 
     # 중심점 좌표 전송
     if len(objects) > 0:
