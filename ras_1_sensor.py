@@ -5,7 +5,7 @@ import numpy as np
 import RPi.GPIO as GPIO
 import Adafruit_DHT
 
-ser = serial.Serial('/dev/ttyAMA0', 9600) # 시리얼 포트 설정
+ser = serial.Serial('/dev/ttyS0', 115200) # 시리얼 포트 설정
 
 # 객체 감지 함수
 def detect_objects(image):
@@ -66,16 +66,19 @@ DHT_TYPE = Adafruit_DHT.DHT11
 def detect_and_measure_temperature():
     # 카메라에서 이미지 캡처
     cap = cv2.VideoCapture(0)
+    print("카메라 작동용")
     ret, frame = cap.read()
     cap.release()
 
     # 객체 감지
     objects = detect_objects(frame)
+    print("객체 감지했다용")
 
     # 객체 수에 따라 온도 측정 방법 선택
     if len(objects) > 1:
         # DHT11 센서로 온도 측정
         humidity, temperature = Adafruit_DHT.read_retry(DHT_TYPE, DHT_PIN)
+        print("온도: %d , 습도: %d ".format(temperature,humidity))
     else:
         # DTS-L300-V2 센서로 온도 측정
         for i in range(6):

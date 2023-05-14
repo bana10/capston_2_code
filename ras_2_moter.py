@@ -46,7 +46,7 @@ def calculate_angle(center):
     return angle
 
 # 시리얼 포트 설정
-ser = serial.Serial('/dev/ttyAMA0', 9600)
+ser = serial.Serial('/dev/ttyS0', 115200)
 
 # 중심점 좌표를 저장하는 스택 초기화
 centers = []
@@ -92,12 +92,3 @@ while True:
                     move_motor(angle1, angle2)
 
 
-# ser = serial.Serial('/dev/ttyAMA0', 9600) # 시리얼 포트 설정
-
-# while True:
-#     if ser.in_waiting != 0:
-#         message = ser.readline().decode().strip() # 시리얼 포트로부터 중심점 좌표를 읽어옴
-#         center_x, center_y = message.split(",")
-#         center_x = int(center_x)
-#         center_y = int(center_y)
-#         move_motor(center_x, center_y) # 중심점 좌표를 이용하여 모터를 움직임
