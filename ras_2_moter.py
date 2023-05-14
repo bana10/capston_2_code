@@ -2,7 +2,7 @@ import serial
 import RPi.GPIO as GPIO
 import time
 
-ser = serial.Serial('/dev/ttyAMA0', 9600) # 시리얼 포트 설정
+ser = serial.Serial('/dev/ttyS0', 115200) # 시리얼 포트 설정
 
 
 
@@ -47,8 +47,7 @@ def calculate_angle(center):
     angle = int((center[0] / 640) * 180)
     return angle
 
-# 시리얼 포트 설정
-ser = serial.Serial('/dev/ttyS0', 115200)
+
 
 # 중심점 좌표를 저장하는 스택 초기화
 centers = []
