@@ -7,8 +7,7 @@ import Adafruit_DHT
 
 ser = serial.Serial('/dev/ttyS0', 115200) # 시리얼 포트 설정
 
-#핀 초기화
-GPIO.cleanup()
+
 
 # 객체 감지 함수
 def detect_objects(image):
@@ -116,9 +115,15 @@ def detect_and_measure_temperature():
         message = "{},{}\n".format(center_x, center_y)
         ser.write(message.encode()) # 시리얼 포트로 중심점 좌표를 전송
 
+    #핀 초기화
+    GPIO.cleanup()
     # 온도 값 반환
     return temperature, humidity
 
+if __name__ == "__main__":
+    while True:
+        detect_and_measure_temperature()
+        time.sleep(1)
 
 
 
