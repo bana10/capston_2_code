@@ -4,38 +4,44 @@ import time
 
 ser = serial.Serial('/dev/ttyS0', 115200) # 시리얼 포트 설정
 
-#Servo motor GPIO 핀 번호
-MOTOR_PIN = 18
+# Servo motor GPIO 핀 번호
+MOTOR_PIN_X = 18
+MOTOR_PIN_Y = 19
 
-#hs-311 모터용 PWM 주파수
+# hs-311 모터용 PWM 주파수
 PWM_FREQUENCY = 50
 
-#hs-311 모터용 PWM 듀티 사이클 범위
+# hs-311 모터용 PWM 듀티 사이클 범위
 DUTY_CYCLE_MIN = 2.5
 DUTY_CYCLE_MAX = 12.5
 
-#GPIO 모듈 초기화
+# GPIO 모듈 초기화
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(MOTOR_PIN, GPIO.OUT)
+GPIO.setup(MOTOR_PIN_X, GPIO.OUT)
+GPIO.setup(MOTOR_PIN_Y, GPIO.OUT)
 
-#PWM 객체 초기화
-pwm = GPIO.PWM(MOTOR_PIN, PWM_FREQUENCY)
-pwm.start(0)
+# PWM 객체 초기화
+pwm_x = GPIO.PWM(MOTOR_PIN_X, PWM_FREQUENCY)
+pwm_x.start(0)
+
+pwm_y = GPIO.PWM(MOTOR_PIN_Y, PWM_FREQUENCY)
+pwm_y.start(0)
 
 def move_motor(x, y):
     # 각 서보 모터 위치에 해당하는 PWM 듀티 사이클 계산
     duty_cycle_x = ((y / 640) * (DUTY_CYCLE_MAX - DUTY_CYCLE_MIN)) + DUTY_CYCLE_MIN
     duty_cycle_y = ((x / 480) * (DUTY_CYCLE_MAX - DUTY_CYCLE_MIN)) + DUTY_CYCLE_MIN
     # 서보 모터를 지정된 위치로 이동
-    pwm.ChangeDutyCycle(duty_cycle_x)
+    pwm_x.ChangeDutyCycle(duty_cycle_x)
     time.sleep(0.5)
-    pwm.ChangeDutyCycle(duty_cycle_y)
+    pwm_y.ChangeDutyCycle(duty_cycle_y)
     time.sleep(0.5)
 
 def get_sorted_centers(centers):
     # 저장된 중심점 좌표를 정렬하는 코드 구현
     sorted_centers = sorted(centers)
     return sorted_centers
+
 
 def calculate_angle(center):
     # 중심점 좌표의 x값을 0부터 180까지의 값으로 변환
