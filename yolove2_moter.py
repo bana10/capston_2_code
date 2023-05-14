@@ -124,7 +124,7 @@ while True:
                    
 
     # 화면에 출력
-    cv2.imshow("Image", frame)
+    
     if cv2.waitKey(1) == ord('q'):
         break
 
