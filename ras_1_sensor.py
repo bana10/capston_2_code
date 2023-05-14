@@ -7,6 +7,9 @@ import Adafruit_DHT
 
 ser = serial.Serial('/dev/ttyS0', 115200) # 시리얼 포트 설정
 
+#핀 초기화
+GPIO.cleanup()
+
 # 객체 감지 함수
 def detect_objects(image):
     # YOLOv3-tiny 가중치 파일과 설정 파일 경로

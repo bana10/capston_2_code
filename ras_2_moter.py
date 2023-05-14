@@ -4,6 +4,9 @@ import time
 
 ser = serial.Serial('/dev/ttyAMA0', 9600) # 시리얼 포트 설정
 
+#핀 초기화
+GPIO.cleanup()
+
 # Servo motor GPIO pin number
 MOTOR_PIN = 18
 
