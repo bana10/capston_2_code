@@ -107,6 +107,7 @@ if __name__ == "__main__":
             else: #2인 이상 감지
                 min_center = sorted_centers[0]
                 max_center = sorted_centers[-1]
+
                 # 가장 외곽의 두 점의 위치가 변경되었는지 확인한다
                 if ((min_center == centers[0] and max_center == centers[-1]) 
                     or (min_center == centers[-1] and max_center == centers[0]))!=1:
@@ -114,6 +115,7 @@ if __name__ == "__main__":
                    # y축은 정렬 양 끝값 평균값
                     angle1 = calculate_angle(centers[0])
                     angle2 = calculate_angle(centers[-1])
+
                     x_distance = abs(centers[-1][0] - centers[0][0])
                     x_angle = calculate_angle((0, 0), (x_distance, 0)) 
                     move_motors(angle1 + x_angle, (sorted_centers[0][1] + sorted_centers[-1][1]) / 2)
