@@ -5,7 +5,6 @@ import numpy as np
 import RPi.GPIO as GPIO
 import Adafruit_DHT
 
-ser = serial.Serial('/dev/ttyS0', 115200) # 시리얼 포트 설정
 
 '''
 기존 코드에서..두번째 보드 코드 짜다가 카메라위치를 (0.0)으로 잡고 짜야되는 부분이 생겼어. 
@@ -92,9 +91,6 @@ def read_temperature(DTSPin):
         # SCK 핀을 HIGH로 설정
         GPIO.output(DTSPin[4], GPIO.HIGH)
 
-    # 핀 초기화
-    GPIO.cleanup()
-
     # 온도 계산
     if data & 0x8000:
         # 음수 온도인 경우
@@ -110,13 +106,13 @@ def read_temperature(DTSPin):
 def detect_and_measure_temperature():
     # Capture image from camera
     cap = cv2.VideoCapture(0)
-    print("For camera operation")
+    print("카메라 작동")
     ret, frame = cap.read()
     cap.release()
 
     # object detection
     objects = detect_objects(frame)
-    print("object detected")
+    print("물체 감지")
 
     # Calculate center point of detected object(s)
     center_x = 0
@@ -130,7 +126,7 @@ def detect_and_measure_temperature():
         center_y /= num_objects
 
     # Send center point to serial port
-    serial_port = serial.Serial('/dev/ttyUSB0', 9600)
+    serial_port = serial.Serial('/dev/ttyS0', 115200)
     serial_port.write("Center point: ({}, {})".format(center_x, center_y).encode())
     serial_port.close()
 
