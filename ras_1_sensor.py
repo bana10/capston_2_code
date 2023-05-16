@@ -5,7 +5,6 @@ import numpy as np
 import RPi.GPIO as GPIO
 import Adafruit_DHT
 
-ser = serial.Serial('/dev/ttyS0', 115200) # 시리얼 포트 설정
 
 '''
 기존 코드에서..두번째 보드 코드 짜다가 카메라위치를 (0.0)으로 잡고 짜야되는 부분이 생겼어. 
@@ -61,82 +60,59 @@ SDI : GPIO 핀 24
 SDD : GPIO 핀 23
 SCE : GPIO 핀 22
 '''
-GPIO.setmode(GPIO.BCM)
-for i in range(6):
-    GPIO.setup(DTSPin[i], GPIO.OUT)
-    GPIO.output(DTSPin[i], GPIO.LOW)
+
 
 # DHT11 센서 설정
 DHT_PIN = 18
 DHT_TYPE = Adafruit_DHT.DHT11
 
-# def detect_and_measure_temperature():
-#     # 카메라에서 이미지 캡처
-#     cap = cv2.VideoCapture(0)
-#     print("카메라 작동용")
-#     ret, frame = cap.read()
-#     cap.release()
 
-#     # 객체 감지
-#     objects = detect_objects(frame)
-#     print("객체 감지했다용")
+def read_temperature(DTSPin):
+    GPIO.setmode(GPIO.BCM)
+    for i in range(6):
+        GPIO.setup(DTSPin[i], GPIO.OUT)
+        GPIO.output(DTSPin[i], GPIO.LOW)
 
-#     # 객체 수에 따라 온도 측정 방법 선택
-#     if len(objects) > 1:
-#         # DHT11 센서로 온도 측정
-#         humidity, temperature = Adafruit_DHT.read_retry(DHT_TYPE, DHT_PIN)
-#         print("온도: %d , 습도: %d ".format(temperature,humidity))
-#     else:
-#         # DTS-L300-V2 센서로 온도 측정
-#         for i in range(6):
-#             GPIO.output(DTSPin[i], GPIO.HIGH)
-#         GPIO.output(DTSPin[0], GPIO.LOW)
-#         count = 0
-#         for i in range(6):
-#             GPIO.output(DTSPin[i], GPIO.LOW)
-#         while GPIO.input(DTSPin[5]) == GPIO.LOW:
-#             pass
-#         while GPIO.input(DTSPin[5]) == GPIO.HIGH:
-#             pass
-#         for i in range(32):
-#             GPIO.output(DTSPin[0], (i & 0x01))
-#             GPIO.output(DTSPin[1], (i & 0x02))
-#             GPIO.output(DTSPin[2], (i & 0x04))
-#             GPIO.output(DTSPin[3], (i & 0x08))
-#             GPIO.output(DTSPin[4], (i & 0x10))
-#             while GPIO.input(DTSPin[5]) == GPIO.LOW:
-#                 pass
-#             count <<= 1
-#             if GPIO.input(DTSPin[5]) == GPIO.HIGH:
-#                 count |= 0x01
+    # SCK 핀을 HIGH로 설정
+    GPIO.output(DTSPin[4], GPIO.HIGH)
 
-#         # 계산된 온도 값 반환
-#         temperature = (count * 0.0625)
-#         humidity = None
-#         print("온도 : %d".format(temperature))
+    # 16비트 데이터 읽기
+    data = 0
+    for i in range(16):
+        # SCK 핀을 LOW로 설정
+        GPIO.output(DTSPin[4], GPIO.LOW)
 
-#     # 중심점 좌표 전송
-#     if len(objects) > 0:
-#         center_x, center_y = objects[0]
-#         message = "{},{}\n".format(center_x, center_y)
-#         ser.write(message.encode()) # 시리얼 포트로 중심점 좌표를 전송
+        # SDD 핀에서 데이터 읽기
+        bit = GPIO.input(DTSPin[3])
 
-#     #핀 초기화
-#     GPIO.cleanup()
-#     # 온도 값 반환
-#     return temperature, humidity
+        # 데이터를 1비트씩 왼쪽으로 시프트하고 읽은 비트를 맨 오른쪽에 추가
+        data = (data << 1) | bit
+
+        # SCK 핀을 HIGH로 설정
+        GPIO.output(DTSPin[4], GPIO.HIGH)
+
+    # 온도 계산
+    if data & 0x8000:
+        # 음수 온도인 경우
+        temperature = -((data ^ 0xFFFF) + 1) / 16.0
+    else:
+        # 양수 온도인 경우
+        temperature = data / 16.0
+
+    return temperature
+
 
 
 def detect_and_measure_temperature():
     # Capture image from camera
     cap = cv2.VideoCapture(0)
-    print("For camera operation")
+    print("카메라 작동")
     ret, frame = cap.read()
     cap.release()
 
     # object detection
     objects = detect_objects(frame)
-    print("object detected")
+    print("물체 감지")
 
     # Calculate center point of detected object(s)
     center_x = 0
@@ -150,7 +126,7 @@ def detect_and_measure_temperature():
         center_y /= num_objects
 
     # Send center point to serial port
-    serial_port = serial.Serial('/dev/ttyUSB0', 9600)
+    serial_port = serial.Serial('/dev/ttyS0', 115200)
     serial_port.write("Center point: ({}, {})".format(center_x, center_y).encode())
     serial_port.close()
 
@@ -161,14 +137,8 @@ def detect_and_measure_temperature():
         print("Temperature: %d , Humidity: %d ".format(temperature,humidity))
     else:
         # Measure temperature with DTS-L300-V2 sensor
-        for i in range(6):
-            GPIO.output(DTSPin[i], GPIO.HIGH)
-        GPIO.output(DTSPin[0], GPIO.LOW)
-        count = 0
-        for i in range(6):
-            GPIO.output(DTSPin[i], GPIO.LOW)
-        while GPIO.input(DTSPin[5]) == GPIO.LOW:
-            pass
+        temperature = read_temperature(DTSPin)
+        print("Temperature: %f" % temperature)
 
      #핀 초기화
     GPIO.cleanup()
