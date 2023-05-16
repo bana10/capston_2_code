@@ -39,10 +39,25 @@ def move_motors(x, y):
     pwm_y.ChangeDutyCycle(duty_cycle_y)
     time.sleep(0.5)
 
+# def get_sorted_centers(centers):
+#     # 스택에 저장된 중심점 좌표를 y값 기준으로 오름차순 정렬하는 코드 구현
+#     sorted_centers = sorted(centers, key=lambda center: center[1])
+#     return sorted_centers
+
+# 
 def get_sorted_centers(centers):
-    # 스택에 저장된 중심점 좌표를 y값 기준으로 오름차순 정렬하는 코드 구현
-    sorted_centers = sorted(centers, key=lambda center: center[1])
+    def quick_sort(arr):
+        if len(arr) <= 1:
+            return arr
+        pivot = arr[len(arr) // 2][1]
+        left = [x for x in arr if x[1] < pivot]
+        middle = [x for x in arr if x[1] == pivot]
+        right = [x for x in arr if x[1] > pivot]
+        return quick_sort(left) + middle + quick_sort(right)
+    
+    sorted_centers = quick_sort(centers)
     return sorted_centers
+
 
 def calculate_angle(center):
     # 중심점 좌표의 x값을 0부터 180까지의 값으로 변환
@@ -93,7 +108,8 @@ if __name__ == "__main__":
                 min_center = sorted_centers[0]
                 max_center = sorted_centers[-1]
                 # 가장 외곽의 두 점의 위치가 변경되었는지 확인한다
-                if ((min_center == centers[0] and max_center == centers[-1]) or (min_center == centers[-1] and max_center == centers[0]))!=1:
+                if ((min_center == centers[0] and max_center == centers[-1]) 
+                    or (min_center == centers[-1] and max_center == centers[0]))!=1:
                    # 양 끝점이 정렬된 것과 다른 경우 x축은 정렬전 배열의 각 끝점을 각도로 환산한 만큼, 
                    # y축은 정렬 양 끝값 평균값
                     angle1 = calculate_angle(centers[0])
