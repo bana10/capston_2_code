@@ -4,10 +4,15 @@ import time
 import math
 
 ser = serial.Serial('/dev/ttyS0', 115200) # 시리얼 포트 설정
+ser1 = serial.Serial('/dev/ttyS1', 115200) # UART1 시리얼 포트 설정
+
 
 # 서보모터 gpio
 MOTOR_X = 18
 MOTOR_Y = 19
+
+# 선풍기 모터
+MOTOR_PIN = 22
 
 # PWM 주파수 설정
 PWM_FREQUENCY = 50
@@ -20,6 +25,8 @@ DUTY_CYCLE_MAX = 12.5
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(MOTOR_X, GPIO.OUT)
 GPIO.setup(MOTOR_Y, GPIO.OUT)
+GPIO.setup(MOTOR_PIN, GPIO.OUT)
+
 
 
 pwm_x = GPIO.PWM(MOTOR_X, PWM_FREQUENCY)
@@ -39,24 +46,24 @@ def move_motors(x, y):
     pwm_y.ChangeDutyCycle(duty_cycle_y)
     time.sleep(0.5)
 
-# def get_sorted_centers(centers):
-#     # 스택에 저장된 중심점 좌표를 y값 기준으로 오름차순 정렬하는 코드 구현
-#     sorted_centers = sorted(centers, key=lambda center: center[1])
-#     return sorted_centers
+def get_sorted_centers(centers):
+    # 스택에 저장된 중심점 좌표를 y값 기준으로 오름차순 정렬하는 코드 구현
+    sorted_centers = sorted(centers, key=lambda center: center[1])
+    return sorted_centers
 
 # 
-def get_sorted_centers(centers):
-    def quick_sort(arr):
-        if len(arr) <= 1:
-            return arr
-        pivot = arr[len(arr) // 2][1]
-        left = [x for x in arr if x[1] < pivot]
-        middle = [x for x in arr if x[1] == pivot]
-        right = [x for x in arr if x[1] > pivot]
-        return quick_sort(left) + middle + quick_sort(right)
+# def get_sorted_centers(centers):
+#     def quick_sort(arr):
+#         if len(arr) <= 1:
+#             return arr
+#         pivot = arr[len(arr) // 2][1]
+#         left = [x for x in arr if x[1] < pivot]
+#         middle = [x for x in arr if x[1] == pivot]
+#         right = [x for x in arr if x[1] > pivot]
+#         return quick_sort(left) + middle + quick_sort(right)
     
-    sorted_centers = quick_sort(centers)
-    return sorted_centers
+#     sorted_centers = quick_sort(centers)
+#     return sorted_centers
 
 
 def calculate_angle(center):
@@ -84,7 +91,40 @@ def calculate_distance(point1, point2):
     return distance
 
 
-if __name__ == "__main__":
+# 온도정보 받아오는 거
+def get_temperature_info():
+    message = ser.readline().decode().strip()
+    temperature = int(message)
+
+    return temperature
+
+# 거리정보 받아오는거
+def get_distance_info():
+    message = ser1.readline().decode().strip()
+    distance = int(message)
+
+    return distance
+
+# 온도와 거리를 이용해 모터 돌리기
+def control_motor(temperature, distance):
+    # Calculate the wind speed
+    if distance < 120:
+        wind_speed = math.sqrt((36 - temperature) / (0.5 * 1005))
+    else:
+        wind_speed = math.sqrt((36 - temperature) / (0.5 * 1005 * (1 - (80 / distance)**2)))
+
+    # 모터 PWM 계산 
+    pwm_duty_cycle = (wind_speed * 100) / 20
+
+    # 모터 동작시키기
+    if wind_speed > 0:
+        GPIO.output(MOTOR_PIN, GPIO.HIGH)
+    else:
+        GPIO.output(MOTOR_PIN, GPIO.LOW)
+
+
+
+def main():
     # 중심점 좌표를 저장하는 스택 초기화
     centers = []
 
@@ -137,21 +177,38 @@ if __name__ == "__main__":
 
                     move_motors(angle1, angle2)
 
+        # 온도
+        temperature = get_temperature_info()
+
+        # 거리
+        distance = get_distance_info()
+
+        # 모터 동작
+        control_motor(temperature, distance)
+
+        # 1초 간격
+        time.sleep(1)
+
+
+
+if __name__ == "__main__":
+    main()
+
                     
 
 
-                    """
-                    1. sorted_centers 리스트에서 중앙에 있는 점인 median_center를 찾음. 
+    """
+    1. sorted_centers 리스트에서 중앙에 있는 점인 median_center를 찾음. 
 
-                    2. sorted_centers의 첫 번째와 마지막 점을 각각 left_end와 right_end에 할당.
-                    
-                    3. median_center의 x 좌표와 left_end의 x 좌표를 비교하여 각도를 계산합니다. 
-                    만약 median_center의 x 좌표가 left_end의 x 좌표보다 작다면, 
-                    angle1은 median_center와 left_end 사이의 각도가 되고, 
-                    angle2는 median_center와 right_end 사이의 각도가 됩니다. 
+    2. sorted_centers의 첫 번째와 마지막 점을 각각 left_end와 right_end에 할당.
+    
+    3. median_center의 x 좌표와 left_end의 x 좌표를 비교하여 각도를 계산합니다. 
+    만약 median_center의 x 좌표가 left_end의 x 좌표보다 작다면, 
+    angle1은 median_center와 left_end 사이의 각도가 되고, 
+    angle2는 median_center와 right_end 사이의 각도가 됩니다. 
 
-                    그렇지 않으면 angle1은 median_center와 right_end 사이의 각도가 되고, 
-                    angle2는 median_center와 left_end 사이의 각도가 됩니다.
-                    
-                    4. 계산된 angle1과 angle2를 이용하여 모터를 제어합니다. 
-                    """
+    그렇지 않으면 angle1은 median_center와 right_end 사이의 각도가 되고, 
+    angle2는 median_center와 left_end 사이의 각도가 됩니다.
+    
+    4. 계산된 angle1과 angle2를 이용하여 모터를 제어합니다. 
+    """
