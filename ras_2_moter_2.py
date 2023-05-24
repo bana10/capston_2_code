@@ -152,8 +152,8 @@ def main():
             
             # 스택에 저장된 중심점 좌표 개수가 1개인 경우
             if len(sorted_centers) == 1:
-                #욱현이 파트
-                pass
+                #모델로 좌표예측 추가 예정
+                move_motors(center_x, center_y)
 
             else: #2인 이상 감지
                 min_center = sorted_centers[0]
