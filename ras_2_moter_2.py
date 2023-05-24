@@ -31,8 +31,10 @@ GPIO.setup(MOTOR_PIN, GPIO.OUT)
 
 pwm_x = GPIO.PWM(MOTOR_X, PWM_FREQUENCY)
 pwm_y = GPIO.PWM(MOTOR_Y, PWM_FREQUENCY)
+pwm = GPIO.PWM(MOTOR_PIN, PWM_FREQUENCY)
 pwm_x.start(0)
 pwm_y.start(0)
+pwm.start(0)
 
 
 def move_motors(x, y):
@@ -105,9 +107,13 @@ def get_distance_info():
 
     return distance
 
-# 온도와 거리를 이용해 모터 돌리기
+
+
+
+
+# 모터 동작 시키기
 def control_motor(temperature, distance):
-    # Calculate the wind speed
+    
     if distance < 120:
         wind_speed = math.sqrt((36 - temperature) / (0.5 * 1005))
     else:
@@ -121,6 +127,11 @@ def control_motor(temperature, distance):
         GPIO.output(MOTOR_PIN, GPIO.HIGH)
     else:
         GPIO.output(MOTOR_PIN, GPIO.LOW)
+
+    # 모터 속도 조절
+    pwm.ChangeDutyCycle(pwm_duty_cycle)
+   
+
 
 
 
