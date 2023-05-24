@@ -115,9 +115,9 @@ def get_distance_info():
 def control_motor(temperature, distance):
     
     if distance < 120:
-        wind_speed = math.sqrt((36 - temperature) / (0.5 * 1005))
+        wind_speed = math.sqrt(abs(36 - temperature) / (0.5 * 1005))
     else:
-        wind_speed = math.sqrt((36 - temperature) / (0.5 * 1005 * (1 - (80 / distance)**2)))
+        wind_speed = math.sqrt(abs(36 - temperature) / (0.5 * 1005 * (1 - (80 / distance)**2)))
 
     # 모터 PWM 계산 
     pwm_duty_cycle = (wind_speed * 100) / 20

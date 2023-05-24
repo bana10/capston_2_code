@@ -37,6 +37,8 @@ def control_motor(temperature, distance):
 
     # 모터 속도 조절
     pwm.ChangeDutyCycle(pwm_duty_cycle)
+
+    GPIO.cleanup()
    
 
 
