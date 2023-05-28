@@ -2,6 +2,11 @@ import serial
 import RPi.GPIO as GPIO
 import time
 import math
+import joblib
+import sklearn
+
+prev_x = 0
+prev_y = 0
 
 ser = serial.Serial('/dev/ttyS0', 115200) # 시리얼 포트 설정
 ser1 = serial.Serial('/dev/ttyS1', 115200) # UART1 시리얼 포트 설정
@@ -36,6 +41,8 @@ pwm_x.start(0)
 pwm_y.start(0)
 pwm.start(0)
 
+x_model = joblib.load('./Xloc_model.pkl')
+y_model = joblib.load('./Yloc_model.pkl')
 
 def move_motors(x, y):
     # 각 서보 모터 위치에 대한 PWM 듀티 사이클 계산
@@ -152,10 +159,19 @@ def main():
             
             # 스택에 저장된 중심점 좌표 개수가 1개인 경우
             if len(sorted_centers) == 1:
-                #모델로 좌표예측 추가 예정
-                move_motors(center_x, center_y)
+                #모델로 좌표예측 추가
+                if (prev_y == prev_x and prev_x == 0) is False:
+                    dat = [[prev_x,prev_y,center_x,center_y]]
+                    p_x = int(x_model.predict(dat))
+                    p_y = int(y_model.predict(dat))
+                
+                move_motors(p_x, p_y)
+                prev_x = center_x
+                prev_y = center_y
 
             else: #2인 이상 감지
+                prev_x = 0
+                prev_y = 0
                 min_center = sorted_centers[0]
                 max_center = sorted_centers[-1]
 
