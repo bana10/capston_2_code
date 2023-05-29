@@ -57,6 +57,7 @@ def read_temperature(DTSPin):
     return temperature
 
 
+
 if __name__ == "__main__":
     while True:
         # DHT11 
