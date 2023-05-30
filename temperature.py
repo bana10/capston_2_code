@@ -44,10 +44,15 @@ def read_temperature():
     resp = spi.xfer2([0x00, 0x00])  # 데이터 수신
 
     # 온도 값 계산
-    raw_temp = (resp[0] << 8) + resp[1]
+    if resp[0] & 0x8000:
+        raw_temp = resp[0] - 0x8000
+    else:
+        raw_temp = resp[0]
+    
     temp = (raw_temp * 0.02) - 273.15
 
     return temp
+
 
 if __name__ == "__main__":
     initialize_sensor()
