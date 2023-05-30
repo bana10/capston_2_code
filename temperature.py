@@ -30,17 +30,17 @@ spi.mode = SPI_MODE3
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(DTSPin['SDD'], GPIO.OUT)  # gpio 23 핀을 출력으로 설정
-GPIO.output(DTSPin['SDD'], 1)  # gpio 23 핀을 HIGH로 설정
+GPIO.output(DTSPin['SDD'], GPIO.HIGH)  # gpio 23 핀을 HIGH로 설정
 
 def spi_command(adr):
     data_buf = [adr, 0x22, 0x22]
 
-    GPIO.output(DTSPin['SDD'], 0)
+    GPIO.output(DTSPin['SDD'], GPIO.LOW)
     time.sleep(0.00001)
 
     resp = spi.xfer2(data_buf)
 
-    GPIO.output(DTSPin['SDD'], 1)
+    GPIO.output(DTSPin['SDD'], GPIO.HIGH)
 
     return (resp[2] * 256 + resp[1])
 
@@ -56,4 +56,4 @@ if __name__ == "__main__":
         print("Sensor: {:.2f}, Object: {:.2f}".format(iSensor/100, iObject/100))
         time.sleep(1)
 
-        GPIO.cleanup()
+    GPIO.cleanup()
