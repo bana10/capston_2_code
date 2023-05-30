@@ -44,12 +44,11 @@ def read_temperature():
     resp = spi.xfer2([0x00, 0x00])  # 데이터 수신
 
     # 온도 값 계산
-    if resp[0] & 0x8000:
-        raw_temp = resp[0] - 0x8000
+    raw_temp = ((resp[0] & 0x7F) << 8) + resp[1]
+    if resp[0] & 0x80:
+        temp = -((raw_temp ^ 0x7FFF) + 1) * 0.02
     else:
-        raw_temp = resp[0]
-    
-    temp = (raw_temp * 0.02) - 273.15
+        temp = raw_temp * 0.02
 
     return temp
 
@@ -67,4 +66,3 @@ if __name__ == "__main__":
         time.sleep(1)
 
     GPIO.cleanup()
-
