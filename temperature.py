@@ -3,6 +3,8 @@ import cv2
 import numpy as np
 import RPi.GPIO as GPIO
 import Adafruit_DHT
+import spidev
+
 
 # DTS-L300-V2 센서 설정
 DTSPin = {
@@ -19,31 +21,26 @@ DHT_TYPE = Adafruit_DHT.DHT11
 # GPIO 초기화
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(DTSPin['SCK'], GPIO.OUT)
-GPIO.setup(DTSPin['SDI'], GPIO.OUT)
-GPIO.setup(DTSPin['SDD'], GPIO.IN)
 GPIO.setup(DTSPin['SCE'], GPIO.OUT)
+GPIO.output(DTSPin['SCE'], GPIO.HIGH)
 
+spi = spidev.SpiDev()
+spi.open(0, 0)
+spi.max_speed_hz = 1000000  # SPI 통신 속도 설정 (1MHz)
 
 def read_temperature():
     # 센서에서 데이터 읽기
-    data = 0
+    spi.xfer2([0x01])  # Start Conversion 명령어 전송
+    time.sleep(0.05)  # 변환이 완료될 때까지 대기
 
-    GPIO.output(DTSPin['SCE'], GPIO.LOW)
+    spi.xfer2([0x00])  # Read Data 명령어 전송
+    time.sleep(0.05)  # 데이터 읽기 대기
 
-    for i in range(16):
-        GPIO.output(DTSPin['SCK'], GPIO.HIGH)
-        time.sleep(0.001)
-        bit = GPIO.input(DTSPin['SDD'])
-        data |= (bit << (15 - i))
-        GPIO.output(DTSPin['SCK'], GPIO.LOW)
-        time.sleep(0.001)
-
-    GPIO.output(DTSPin['SCE'], GPIO.HIGH)
+    resp = spi.xfer2([0x00, 0x00])  # 데이터 수신
 
     # 온도 값 계산
-    temp = ((data & 0xFF00) >> 8) + ((data & 0x00FF) / 256.0)
-    temp = temp * 0.0625
+    raw_temp = (resp[0] << 8) + resp[1]
+    temp = (raw_temp * 0.02) - 273.15
 
     return temp
 
