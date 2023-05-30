@@ -21,7 +21,6 @@ SCE : GPIO 핀 22
 DHT_PIN = 18
 DHT_TYPE = Adafruit_DHT.DHT11
 
-
 def read_temperature(DTSPin):
     GPIO.setmode(GPIO.BCM)
     for i in range(6):
@@ -57,7 +56,6 @@ def read_temperature(DTSPin):
     return temperature
 
 
-
 if __name__ == "__main__":
     while True:
         # DHT11 
@@ -65,7 +63,7 @@ if __name__ == "__main__":
         print("Temperature: %d , Humidity: %d \n".format(temperature,humidity))
 
         # DTS-L300-V2 
-        temperature = read_temperature(DTSPin)
+        temperature = float(read_temperature(DTSPin))
         print("Temperature: %f\n" % temperature)
 
         time.sleep(1)
