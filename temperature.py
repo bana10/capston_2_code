@@ -48,7 +48,6 @@ def read_temperature():
     return temp
 
 if __name__ == "__main__":
-    GPIO.setwarnings(False)
     while True:
         # DHT11
         humidity, temperature_dht = Adafruit_DHT.read_retry(DHT_TYPE, DHT_PIN)
@@ -59,4 +58,5 @@ if __name__ == "__main__":
         print("Temperature: {:.2f} °C".format(temperature_dts))
         time.sleep(1)
 
-        GPIO.cleanup()
+    GPIO.cleanup()
+
