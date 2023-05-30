@@ -60,10 +60,11 @@ if __name__ == "__main__":
     while True:
         # DHT11 
         humidity, temperature = Adafruit_DHT.read_retry(DHT_TYPE, DHT_PIN)
-        print("Temperature: %d , Humidity: %d \n".format(temperature,humidity))
+        print("Temperature: {}, Humidity: {}\n".format(temperature, humidity))
 
         # DTS-L300-V2 
-        temperature = float(read_temperature(DTSPin))
-        print("Temperature: %f\n" % temperature)
+        temperature_dts = read_temperature(DTSPin)
+        print("Temperature: {}\n".format(temperature_dts))
 
         time.sleep(1)
+
