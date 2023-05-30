@@ -28,6 +28,11 @@ spi = spidev.SpiDev()
 spi.open(0, 0)
 spi.max_speed_hz = 1000000  # SPI 통신 속도 설정 (1MHz)
 
+# DTS-L300-V2 센서 초기화 함수
+def initialize_sensor():
+    spi.xfer2([0x01])  # Initialization 명령어 전송
+    time.sleep(0.05)  # 초기화 시간 대기
+
 def read_temperature():
     # 센서에서 데이터 읽기
     spi.xfer2([0x01])  # Start Conversion 명령어 전송
@@ -45,6 +50,7 @@ def read_temperature():
     return temp
 
 if __name__ == "__main__":
+    initialize_sensor()
     while True:
         # DHT11
         humidity, temperature_dht = Adafruit_DHT.read_retry(DHT_TYPE, DHT_PIN)
