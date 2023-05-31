@@ -4,131 +4,83 @@ import cv2
 import numpy as np
 import RPi.GPIO as GPIO
 import Adafruit_DHT
+import board
+import busio
+import adafruit_mlx90614
 
 
-'''
-기존 코드에서..두번째 보드 코드 짜다가 카메라위치를 (0.0)으로 잡고 짜야되는 부분이 생겼어. 
-내 머리로 짜기엔 토할거 같아서 chat gpt돌림.
-이 코드는 카메라 위치를 (0.0)으로 잡고 객체의 중심점들을 추출하는 코드.
-'''
-
-def detect_and_measure_temperature():
-    # 카메라 작동시키기
-    cap = cv2.VideoCapture(0)
-    print("카메라 작동")
-    ret, frame = cap.read()
-    cap.release()
-
-    # 물체 감지
-    objects = detect_objects(frame)
-    print("물체 감지")
-
-    # Calculate center point of detected object(s)
-    center_x = 0
-    center_y = 0
-    num_objects = len(objects)
-    for obj in objects:
-        center_x += obj["x"] + obj["w"] / 2
-        center_y += obj["y"] + obj["h"] / 2
-    if num_objects > 0:
-        center_x /= num_objects
-        center_y /= num_objects
-
-    # Send center point to serial port
-    serial_port = serial.Serial('/dev/ttyS0', 115200)
-    serial_port.write("Center point: ({}, {})".format(center_x, center_y).encode())
-    serial_port.close()
-
-    # Choose the temperature measurement method according to the number of objects
-    if num_objects > 1:
-        # Measure temperature with DHT11 sensor
-        humidity, temperature = Adafruit_DHT.read_retry(DHT_TYPE, DHT_PIN)
-        print("Temperature: %d , Humidity: %d ".format(temperature,humidity))
-    else:
-        # Measure temperature with DTS-L300-V2 sensor
-        temperature = read_temperature(DTSPin)
-        print("Temperature: %f" % temperature)
-
-    # Send temperature and humidity to serial port
-    serial_port = serial.Serial('/dev/ttyS0', 115200)
-    serial_port.write("Temperature: {} Humidity: {}".format(temperature, humidity).encode())
-    serial_port.close()
-
-     #핀 초기화
-    GPIO.cleanup()
-
-
-if __name__ == "__main__":
-    while True:
-        detect_and_measure_temperature()
-        time.sleep(1)
-
-
-
-
-# DTS-L300-V2 센서 설정
-DTSPin = [27, 22, 23, 24, 25, 26]
-'''
-SCK : GPIO 핀 25
-SDI : GPIO 핀 24
-SDD : GPIO 핀 23
-SCE : GPIO 핀 22
-'''
-
-
-# DHT11 센서 설정
+# DHT11 sensor configuration
 DHT_PIN = 18
 DHT_TYPE = Adafruit_DHT.DHT11
 
+# MLX90614 sensor configuration
+i2c_bus = busio.I2C(board.SCL, board.SDA)
+mlx = adafruit_mlx90614.MLX90614(i2c_bus)
 
-def read_temperature(DTSPin):
-    GPIO.setmode(GPIO.BCM)
-    for i in range(6):
-        GPIO.setup(DTSPin[i], GPIO.OUT)
-        GPIO.output(DTSPin[i], GPIO.LOW)
+def detect_objects(frame):
+    # YOLO configuration
+    net = cv2.dnn.readNet("yolov3.weights", "yolov3.cfg")
+    classes = []
+    with open("coco.names", "r") as f:
+        classes = [line.strip() for line in f.readlines()]
+    layer_names = net.getLayerNames()
+    output_layers = [layer_names[i[0] - 1] for i in net.getUnconnectedOutLayers()]
 
-    # SCK 핀을 HIGH로 설정
-    GPIO.output(DTSPin[4], GPIO.HIGH)
+    height, width, channels = frame.shape
+    blob = cv2.dnn.blobFromImage(frame, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
+    net.setInput(blob)
+    outs = net.forward(output_layers)
+    
+    objects = []
+    
+    for out in outs:
+        for detection in out:
+            scores = detection[5:]
+            class_id = np.argmax(scores)
+            confidence = scores[class_id]
+            class_name = classes[class_id]
+            
+            if confidence > 0.5 and class_name in ["person", "cat", "dog"]:
+                center_x = int(detection[0] * width)
+                center_y = int(detection[1] * height)
+                w = int(detection[2] * width)
+                h = int(detection[3] * height)
+                x = int(center_x - w / 2)
+                y = int(center_y - h / 2)
+                
+                obj = {
+                    "class_id": class_id,
+                    "class_name": class_name,
+                    "confidence": confidence,
+                    "x": x,
+                    "y": y,
+                    "w": w,
+                    "h": h
+                }
+                
+                objects.append(obj)
+    
+    return objects
 
-    # 16비트 데이터 읽기
-    data = 0
-    for i in range(16):
-        # SCK 핀을 LOW로 설정
-        GPIO.output(DTSPin[4], GPIO.LOW)
-
-        # SDD 핀에서 데이터 읽기
-        bit = GPIO.input(DTSPin[3])
-
-        # 데이터를 1비트씩 왼쪽으로 시프트하고 읽은 비트를 맨 오른쪽에 추가
-        data = (data << 1) | bit
-
-        # SCK 핀을 HIGH로 설정
-        GPIO.output(DTSPin[4], GPIO.HIGH)
-
-    # 온도 계산
-    if data & 0x8000:
-        # 음수 온도인 경우
-        temperature = -((data ^ 0xFFFF) + 1) / 16.0
-    else:
-        # 양수 온도인 경우
-        temperature = data / 16.0
-
-    return temperature
-
-
+def measure_temperature(obj_class):
+    if obj_class in ["person", "cat", "dog"]:
+        infrared_temperature = mlx.object_temperature
+        air_temperature, air_humidity = Adafruit_DHT.read_retry(DHT_TYPE, DHT_PIN)
+        surface_temperature = infrared_temperature + (air_temperature - infrared_temperature) * (100 - air_humidity) / 100
+        return surface_temperature
 
 def detect_and_measure_temperature():
-    # 카메라 동작하기
+    # Camera operation
     cap = cv2.VideoCapture(0)
-    print("카메라 작동")
+    print("Camera initialized")
     ret, frame = cap.read()
     cap.release()
 
-    # 물체 감지
+    # Object detection
     objects = detect_objects(frame)
-    print("물체 감지")
+    print("Objects detected")
 
-    # 중심점 계산
+    # Extract center points
     center_x = 0
     center_y = 0
     num_objects = len(objects)
@@ -145,14 +97,15 @@ def detect_and_measure_temperature():
     serial_port.close()
 
     # 상황에 따라 온도모듈 선택해서 온도 특정
-    if num_objects > 1:
+    if num_objects == 1:
+        # MLX90614 and DHT11
+        temperature = measure_temperature(objects)
+        print("Surface Temperature: {}".format(temperature))
+    else:
         # DHT11 
         humidity, temperature = Adafruit_DHT.read_retry(DHT_TYPE, DHT_PIN)
-        print("Temperature: %d , Humidity: %d ".format(temperature,humidity))
-    else:
-        # DTS-L300-V2 
-        temperature = read_temperature(DTSPin)
-        print("Temperature: %f" % temperature)
+        print("Temperature: {}, Humidity: {}".format(temperature, humidity))
+
 
     # 온도 정보 통신하기
     serial_port = serial.Serial('/dev/ttyS0', 115200)
