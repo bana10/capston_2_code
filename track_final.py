@@ -149,10 +149,10 @@ def detect_and_measure_temperature():
             p_x = center_x
             p_y = center_y
             
-            if (prev_y == prev_x and prev_x == 0) is False:
-                dat = [[prev_x, prev_y, center_x, center_y]]
-                p_x = int(x_model.predict(dat))
-                p_y = int(y_model.predict(dat))
+            #if (prev_y == prev_x and prev_x == 0) is False:
+                #dat = [[prev_x, prev_y, center_x, center_y]]
+                #p_x = int(x_model.predict(dat))
+                #p_y = int(y_model.predict(dat))
 
             move_motors(p_x, p_y)
             prev_x = center_x
