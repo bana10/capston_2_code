@@ -3,20 +3,29 @@ import time
 import cv2
 import numpy as np
 import RPi.GPIO as GPIO
-import Adafruit_DHT
 import board
 import busio
-import adafruit_mlx90614
+import Adafruit_DHT
+from ctypes import cdll
 
 
-# DHT11 sensor configuration
 DHT_PIN = 18
 DHT_TYPE = Adafruit_DHT.DHT11
 
-# MLX90614 sensor configuration
-i2c_bus = busio.I2C(board.SCL, board.SDA)
-mlx = adafruit_mlx90614.MLX90614(i2c_bus)
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(DHT_PIN, GPIO.IN)
 
+
+
+class Temperature(object):
+    def __init__(self, libPath):
+        self.lib = cdll.LoadLibrary(libPath)
+        self.obj = self.lib.Temperature_new()
+
+    def check(self, tick=0.5):
+        self.lib.Temperature_check(self.obj)
+        time.sleep(tick)
+        
 def detect_objects(frame):
     # YOLO configuration
     net = cv2.dnn.readNet("yolov3.weights", "yolov3.cfg")
@@ -64,10 +73,10 @@ def detect_objects(frame):
 
 def measure_temperature(obj_class):
     if obj_class in ["person", "cat", "dog"]:
-        infrared_temperature = mlx.object_temperature
-        air_temperature, air_humidity = Adafruit_DHT.read_retry(DHT_TYPE, DHT_PIN)
-        surface_temperature = infrared_temperature + (air_temperature - infrared_temperature) * (100 - air_humidity) / 100
-        return surface_temperature
+        f = Temperature(libPath='./temperature.so')
+        result = f.check()
+        object_temperature = result.split(", ")[1]
+        return object_temperature
 
 def detect_and_measure_temperature():
     # Camera operation
@@ -98,9 +107,9 @@ def detect_and_measure_temperature():
 
     # 상황에 따라 온도모듈 선택해서 온도 특정
     if num_objects == 1:
-        # MLX90614 and DHT11
         temperature = measure_temperature(objects)
-        print("Surface Temperature: {}".format(temperature))
+        print("Temperature: {} ".format(temperature))
+       
     else:
         # DHT11 
         humidity, temperature = Adafruit_DHT.read_retry(DHT_TYPE, DHT_PIN)
