@@ -104,7 +104,7 @@ def detect_and_measure_temperature():
                 confidence = scores[class_id]
                 class_name = classes[class_id]
     
-                if confidence > 0.25 and class_name in ["person"]:
+                if confidence > 0.4:
                     center_x = int(detection[0] * width)
                     center_y = int(detection[1] * height)
                     w = int(detection[2] * width)
@@ -121,8 +121,9 @@ def detect_and_measure_temperature():
                         "w": w,
                         "h": h
                     }
-    
-                    objects.append(obj)
+                    
+                    if class_name == 'person':
+                        objects.append(obj)
         print("Objects detected")
 
         # Extract center points
