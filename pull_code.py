@@ -282,37 +282,34 @@ if __name__ == "__main__":
             prev_y = center_y
 
         else:  # 2인 이상 감지
-            min_center = sorted_centers[0]
-            max_center = sorted_centers[-1]
+            if len(sorted_centers) > 1:
+                min_center = sorted_centers[0]
+                max_center = sorted_centers[-1]
 
-            # 가장 외곽의 두 점의 위치가 변경되었는지 확인한다
-            if ((min_center == center[0] and max_center == center[-1]) or (min_center == center[-1] and max_center == center[0])) != 1:
-                # 양 끝점이 정렬된 것과 다른 경우 x축은 정렬 전 배열의 각 끝점을 각도로 환산한 만큼,
-                # y축은 정렬 양 끝값 평균값
-                angle1 = calculate_angle(center[0])
-                angle2 = calculate_angle(center[-1])
+                # 가장 외곽의 두 점의 위치가 변경되었는지 확인한다
+                if ((min_center == center[0] and max_center == center[-1]) or (min_center == center[-1] and max_center == center[0])) != 1:
+                    # 양 끝점이 정렬된 것과 다른 경우 x축은 정렬 전 배열의 각 끝점을 각도로 환산한 만큼,
+                    # y축은 정렬 양 끝값 평균값
+                    angle1 = calculate_angle(center[0])
+                    angle2 = calculate_angle(center[-1])
 
-                x_distance = abs(center[-1][0] - center[0][0])
-                x_angle = calculate_angle((0, 0), (x_distance, 0))
-                move_motors(angle1 + x_angle, (sorted_centers[0][1] + sorted_centers[-1][1]) / 2)
+                    x_distance = abs(center[-1][0] - center[0][0])
+                    x_angle = calculate_angle((0, 0), (x_distance, 0))
+                    move_motors(angle1 + x_angle, (sorted_centers[0][1] + sorted_centers[-1][1]) / 2)
 
-                
-
-            else:
-                # 현재 모터의 위치
-                current_position = get_current_motor_position()
-                # 가장 작은 점과 가장 큰 점 사이의 대각선을 따라 모터를 이동한다
-                median_center = sorted_centers[len(sorted_centers) // 2]
-                left_end, right_end = sorted_centers[0], sorted_centers[-1]
-
-                # 현재 위치와 가까운 쪽 방향으로 우선 대각선으로 이동
-                if calculate_distance(current_position, left_end) < calculate_distance(current_position, right_end):
-                    angle1 = calculate_angle(current_position, left_end)
-                    angle2 = calculate_angle(median_center, right_end)
                 else:
-                    angle1 = calculate_angle(current_position, right_end)
-                    angle2 = calculate_angle(median_center, left_end)
+                    # 현재 모터의 위치
+                    current_position = get_current_motor_position()
+                    # 가장 작은 점과 가장 큰 점 사이의 대각선을 따라 모터를 이동한다
+                    median_center = sorted_centers[len(sorted_centers) // 2]
+                    left_end, right_end = sorted_centers[0], sorted_centers[-1]
 
-                move_motors(angle1, angle2)
+                    # 현재 위치와 가까운 쪽 방향으로 우선 대각선으로 이동
+                    if calculate_distance(current_position, left_end) < calculate_distance(current_position, right_end):
+                        angle1 = calculate_angle(current_position, left_end)
+                        angle2 = calculate_angle(median_center, right_end)
+                    else:
+                        angle1 = calculate_angle(current_position, right_end)
+                        angle2 = calculate_angle(median_center, left_end)
 
-            
+                    move_motors(angle1, angle2)
