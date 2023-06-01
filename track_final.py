@@ -4,7 +4,6 @@ import cv2
 import numpy as np
 import RPi.GPIO as GPIO
 import board
-import busio
 import Adafruit_DHT
 from ctypes import cdll
 import joblib
