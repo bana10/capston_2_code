@@ -166,7 +166,7 @@ def detect_and_measure_temperature():
             #humidity, temperature = Adafruit_DHT.read_retry(DHT_TYPE, DHT_PIN)
         
         
-        time.sleep(0.5)
+        time.sleep(0.25)
     
     cap.release()
 
