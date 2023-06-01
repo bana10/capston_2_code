@@ -77,6 +77,8 @@ def measure_temperature(obj_class):
 def detect_and_measure_temperature():
     # Camera operation
     cap = cv2.VideoCapture(0)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT,1080)
     net = cv2.dnn.readNet("yolov2-tiny.weights", "yolov2-tiny.cfg")
 
     classes = []
