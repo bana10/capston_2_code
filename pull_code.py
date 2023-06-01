@@ -3,8 +3,6 @@ import time
 import cv2
 import numpy as np
 import RPi.GPIO as GPIO
-import board
-import busio
 import Adafruit_DHT
 from ctypes import cdll, c_char_p
 import math
@@ -114,7 +112,7 @@ def detect_and_measure_temperature():
     print("Objects detected")
 
     # Display frame
-    cv2.imshow("Camera View", frame)
+    #cv2.imshow("Camera View", frame)
 
     # Extract center points
     center_points = []
