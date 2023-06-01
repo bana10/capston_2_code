@@ -60,19 +60,6 @@ def get_sorted_centers(centers):
     sorted_centers = sorted(centers, key=lambda center: center[1])
     return sorted_centers
 
-# 
-# def get_sorted_centers(centers):
-#     def quick_sort(arr):
-#         if len(arr) <= 1:
-#             return arr
-#         pivot = arr[len(arr) // 2][1]
-#         left = [x for x in arr if x[1] < pivot]
-#         middle = [x for x in arr if x[1] == pivot]
-#         right = [x for x in arr if x[1] > pivot]
-#         return quick_sort(left) + middle + quick_sort(right)
-    
-#     sorted_centers = quick_sort(centers)
-#     return sorted_centers
 
 
 def calculate_angle(center):
@@ -169,28 +156,28 @@ def main():
                 prev_x = center_x
                 prev_y = center_y
 
-            else: #2인 이상 감지
-                prev_x = 0
-                prev_y = 0
+            else:  # 2인 이상 감지
                 min_center = sorted_centers[0]
                 max_center = sorted_centers[-1]
 
                 # 가장 외곽의 두 점의 위치가 변경되었는지 확인한다
-                if ((min_center == centers[0] and max_center == centers[-1]) 
-                    or (min_center == centers[-1] and max_center == centers[0]))!=1:
-                   # 양 끝점이 정렬된 것과 다른 경우 x축은 정렬전 배열의 각 끝점을 각도로 환산한 만큼, 
-                   # y축은 정렬 양 끝값 평균값
+                if ((min_center == centers[0] and max_center == centers[-1]) or (min_center == centers[-1] and max_center == centers[0])) != 1:
+                    # 양 끝점이 정렬된 것과 다른 경우 x축은 정렬 전 배열의 각 끝점을 각도로 환산한 만큼,
+                    # y축은 정렬 양 끝값 평균값
                     angle1 = calculate_angle(centers[0])
                     angle2 = calculate_angle(centers[-1])
 
                     x_distance = abs(centers[-1][0] - centers[0][0])
-                    x_angle = calculate_angle((0, 0), (x_distance, 0)) 
+                    x_angle = calculate_angle((0, 0), (x_distance, 0))
                     move_motors(angle1 + x_angle, (sorted_centers[0][1] + sorted_centers[-1][1]) / 2)
+
+                    prev_x = centers[0][0]  # Update previous x value
+                    prev_y = centers[0][1]  # Update previous y value
 
                 else:
                     # 현재 모터의 위치
-                    current_position = get_current_motor_position() 
-                   # 가장 작은 점과 가장 큰 점 사이의 대각선을 따라 모터를 이동한다
+                    current_position = get_current_motor_position()
+                    # 가장 작은 점과 가장 큰 점 사이의 대각선을 따라 모터를 이동한다
                     median_center = sorted_centers[len(sorted_centers) // 2]
                     left_end, right_end = sorted_centers[0], sorted_centers[-1]
 
@@ -203,6 +190,9 @@ def main():
                         angle2 = calculate_angle(median_center, left_end)
 
                     move_motors(angle1, angle2)
+
+                    prev_x = current_position[0]  # Update previous x value
+                    prev_y = current_position[1]  # Update previous y value
 
         # 온도
         temperature = get_temperature_info()
