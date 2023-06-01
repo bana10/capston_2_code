@@ -166,7 +166,7 @@ def detect_and_measure_temperature():
             # DHT11 
             #humidity, temperature = Adafruit_DHT.read_retry(DHT_TYPE, DHT_PIN)
         
-        cv2.imshow("Image", frame)
+        #cv2.imshow("Image", frame)
         time.sleep(0.25)
     
     cap.release()
