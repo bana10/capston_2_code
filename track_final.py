@@ -104,7 +104,7 @@ def detect_and_measure_temperature():
                 confidence = scores[class_id]
                 class_name = classes[class_id]
     
-                if confidence > 0.5 and class_name in ["person"]:
+                if confidence > 0.45 and class_name in ["person"]:
                     center_x = int(detection[0] * width)
                     center_y = int(detection[1] * height)
                     w = int(detection[2] * width)
@@ -129,7 +129,8 @@ def detect_and_measure_temperature():
         center_x = 0
         center_y = 0
         num_objects = len(objects)
-        
+        global prev_x
+        global prev_y
 
         # 중심점을 시리얼 통신으로 보내기
         temperature = -1
@@ -137,6 +138,7 @@ def detect_and_measure_temperature():
         print("detected:", num_objects)
         # 상황에 따라 온도모듈 선택해서 온도 특정
         if num_objects == 1:
+            
             obj = objects[0]
             temperature = measure_temperature(objects)
             center_x = obj["x"] + obj['w'] / 2
