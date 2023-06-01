@@ -122,13 +122,12 @@ while True:
     cv2.line(frame, (point_x[1], 0), (point_x[1], hp), (255,0,0))
     cv2.line(frame, (0, point_y[0]), (wp, point_y[0]), (255,0,0))
     cv2.line(frame, (0, point_y[1]), (wp, point_y[1]), (255,0,0))
-
+    print(len(indexes))
     if len(indexes) > 0:
         for i in indexes.flatten():
             x, y, w, h = boxes[i]
             label = str(classes[class_ids[i]])
-            
-            
+        
             # 감지된 객체가 사람이나 동물일 경우, 서보모터를 조작
             if label in ['person', 'dog', 'cat']: # 예시로 'person', 'dog', 'cat'으로 설정함
                 confidence = str(round(confidences[i], 2))
@@ -141,7 +140,6 @@ while True:
                 cv2.putText(frame, f'({center_x}, {center_y})', (center_x + 10, center_y + 10), font, 0.5, color, 2)
 
                 # 감지된 객체가 2명 이상인 경우, 서보모터 1, 2의 각도 값 계산
-                print(len(centers))
                 if len(centers) > 1:
                     x_coordinates = [c[0] for c in centers]
                     y_coordinates = [c[1] for c in centers]
