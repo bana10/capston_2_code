@@ -58,7 +58,19 @@ if __name__ == "__main__":
             control_motor(temperature, distance)
 
             # 1초 간격
-            time.sleep(1)
+            time.sleep(2)
+            
+            
+            # 온도
+            temperature = 35
+            # 거리
+            distance = 80
+
+            # 모터 동작
+            control_motor(temperature, distance)
+
+            # 1초 간격
+            time.sleep(2)
 
     except KeyboardInterrupt:
         pass
