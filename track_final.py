@@ -62,7 +62,7 @@ class Temperature(object):
         self.lib = cdll.LoadLibrary(libPath)
         self.obj = self.lib.Temperature_new()
 
-    def check(self, tick=0.5):
+    def check(self, tick=0.01):
         self.lib.Temperature_check(self.obj)
         time.sleep(tick)
         
@@ -168,9 +168,9 @@ def detect_and_measure_temperature():
             # DHT11 
             #humidity, temperature = Adafruit_DHT.read_retry(DHT_TYPE, DHT_PIN)
         
-        print(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        #print(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         #cv2.imshow("Image", frame)
-        time.sleep(0.25)
+        #time.sleep(0.25)
     
     cap.release()
 
