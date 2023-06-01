@@ -87,7 +87,6 @@ def detect_and_measure_temperature():
     print("Camera initialized")
     while True:
         ret, frame = cap.read()
-        cv2.imwrite("test.jpg",frame)
 
         # Object detection
         height, width, channels = frame.shape
