@@ -112,7 +112,7 @@ def detect_and_measure_temperature():
     print("Objects detected")
 
     # Display frame
-    cv2.imshow("Camera View", frame)
+    #cv2.imshow("Camera View", frame)
 
     # Extract center points
     center_points = []
