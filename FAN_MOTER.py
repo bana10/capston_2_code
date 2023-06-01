@@ -5,7 +5,7 @@ import time
 # 모터 드라이브
 MOTOR_PIN_ENA = 17
 MOTOR_PIN_IN1 = 27
-MOTOR_PIN_IN2 = 22
+MOTOR_PIN_IN2 = 5
 
 # PWM 주파수 설정
 PWM_FREQUENCY = 100
