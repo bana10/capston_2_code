@@ -141,6 +141,7 @@ while True:
                 cv2.putText(frame, f'({center_x}, {center_y})', (center_x + 10, center_y + 10), font, 0.5, color, 2)
 
                 # 감지된 객체가 2명 이상인 경우, 서보모터 1, 2의 각도 값 계산
+                print(len(centers))
                 if len(centers) > 1:
                     x_coordinates = [c[0] for c in centers]
                     y_coordinates = [c[1] for c in centers]
@@ -166,9 +167,10 @@ while True:
                    
 
     # 화면에 출력
-    cv2.imshow("Image", frame)
-    if cv2.waitKey(1) == ord('q'):
-        break
+    #cv2.imshow("Image", frame)
+    #print(hp)
+    #if cv2.waitKey(1) == ord('q'):
+    #    break
 
 
 cap.release()
