@@ -139,7 +139,7 @@ def detect_and_measure_temperature():
         print("detected:", num_objects)
         # 상황에 따라 온도모듈 선택해서 온도 특정
         if num_objects == 1:
-            
+            cv2.rectangle(frame, (obj['x'], obj['y']), (obj['x'] + obj['w'], obj['y'] + obj['h']), (255,0,0), 2)
             obj = objects[0]
             temperature = measure_temperature(objects)
             center_x = obj["x"] + obj['w'] / 2
@@ -166,7 +166,7 @@ def detect_and_measure_temperature():
             # DHT11 
             #humidity, temperature = Adafruit_DHT.read_retry(DHT_TYPE, DHT_PIN)
         
-        
+        cv2.imshow("Image", frame)
         time.sleep(0.25)
     
     cap.release()
