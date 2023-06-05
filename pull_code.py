@@ -188,7 +188,6 @@ def move_motors(x, y):
 
     # 서보 모터를 지정된 위치로 이동
     pwm_x.ChangeDutyCycle(duty_cycle_x)
-    time.sleep(0.5)
     pwm_y.ChangeDutyCycle(duty_cycle_y)
     time.sleep(0.5)
 
@@ -236,7 +235,7 @@ def get_distance_info():
 
 
 
-# 모터 동작 시키기
+# 온도에 따라 프로펠러 모터 동작 시키기
 def control_motor(temperature, distance):
     
     if distance < 120:

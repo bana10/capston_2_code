@@ -1,79 +1,58 @@
 import RPi.GPIO as GPIO
-import math
 import time
+import math
 
-# 모터 드라이브
-MOTOR_PIN_ENA = 17
-MOTOR_PIN_IN1 = 27
-MOTOR_PIN_IN2 = 5
+# 핀 번호 설정
+ENA = 18  # 모터 A의 enable 핀 (PWM 제어)
+IN1 = 23  # 모터 A의 입력 1
 
-# PWM 주파수 설정
-PWM_FREQUENCY = 100
 
-# PWM 사이클 범위
-DUTY_CYCLE_MIN = 0
-DUTY_CYCLE_MAX = 100
-
-# GPIO 설정
+# GPIO 모드 설정
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(MOTOR_PIN_ENA, GPIO.OUT)
-GPIO.setup(MOTOR_PIN_IN1, GPIO.OUT)
-GPIO.setup(MOTOR_PIN_IN2, GPIO.OUT)
-
-pwm = GPIO.PWM(MOTOR_PIN_ENA, PWM_FREQUENCY)
-pwm.start(0)
+GPIO.setup(ENA, GPIO.OUT)
+GPIO.setup(IN1, GPIO.OUT)
 
 
-# 모터 동작 시키기
-def control_motor(temperature, distance):
+# PWM 객체 생성
+pwm = GPIO.PWM(ENA, 100)  # 100Hz의 PWM 주파수
+
+# 모터 제어 함수
+def motor_control(direction, speed):
+    GPIO.output(IN1, direction)
+    pwm.start(speed)
+
+# 모터 정지
+def stop_motor():
+    GPIO.output(IN1, GPIO.LOW)
+    
+    pwm.stop()
+
+# 모터 속도를 계산하는 함수
+def calculate_speed(temperature, distance):
     if distance < 120:
         wind_speed = math.sqrt(abs(36 - temperature) / (0.5 * 1005))
     else:
         wind_speed = math.sqrt(abs(36 - temperature) / (0.5 * 1005 * (1 - (80 / distance)**2)))
-
-    # 모터 속도 계산
-    duty_cycle = (wind_speed / 20) * (DUTY_CYCLE_MAX - DUTY_CYCLE_MIN) + DUTY_CYCLE_MIN
-
-    # 모터 방향 설정
-    if wind_speed > 0:
-        GPIO.output(MOTOR_PIN_IN1, GPIO.HIGH)
-        GPIO.output(MOTOR_PIN_IN2, GPIO.LOW)
-    else:
-        GPIO.output(MOTOR_PIN_IN1, GPIO.LOW)
-        GPIO.output(MOTOR_PIN_IN2, GPIO.LOW)
-
-    # 모터 속도 조절
-    pwm.ChangeDutyCycle(duty_cycle)
+    return wind_speed
 
 
-if __name__ == "__main__":
-    try:
-        while True:
-            # 온도
-            temperature = 37
-            # 거리
-            distance = 100
+try:
+    while True:
+        speed = calculate_speed(32,100)
+        print("속도  : %f",speed*1000)
+        motor_control(GPIO.HIGH, speed * 1000)
+        time.sleep(10)  
 
-            # 모터 동작
-            control_motor(temperature, distance)
+        speed = calculate_speed(34,80)
+        print("속도  : %f",speed*1000)
+        motor_control(GPIO.HIGH, speed * 1000)
+        time.sleep(10) 
 
-            # 1초 간격
-            time.sleep(2)
-            
-            
-            # 온도
-            temperature = 35
-            # 거리
-            distance = 80
+        # 모터 정지
+        stop_motor()
+        time.sleep(2)  # 2초간 대기
 
-            # 모터 동작
-            control_motor(temperature, distance)
+except KeyboardInterrupt:
+    stop_motor()
+    GPIO.cleanup()
 
-            # 1초 간격
-            time.sleep(2)
-
-    except KeyboardInterrupt:
-        pass
-
-    finally:
-        GPIO.cleanup()

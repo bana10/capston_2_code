@@ -9,9 +9,6 @@ prev_x = 0
 prev_y = 0
 
 ser = serial.Serial('/dev/ttyS0', 115200) # 시리얼 포트 설정
-ser1 = serial.Serial('/dev/ttyS1', 115200) # UART1 시리얼 포트 설정
-
-
 # 서보모터 gpio
 MOTOR_X = 18
 MOTOR_Y = 19
@@ -73,8 +70,8 @@ def get_current_motor_position():
     duty_cycle_y = pwm_y.get_duty_cycle()
 
     # 현재 위치를 duty cycle 값에서 위치로 변환하는 계산식을 사용하여 계산
-    position_x = (duty_cycle_x - DUTY_CYCLE_MIN) / (DUTY_CYCLE_MAX - DUTY_CYCLE_MIN) * (max_x - min_x) + min_x
-    position_y = (duty_cycle_y - DUTY_CYCLE_MIN) / (DUTY_CYCLE_MAX - DUTY_CYCLE_MIN) * (max_y - min_y) + min_y
+    position_x = (duty_cycle_x - DUTY_CYCLE_MIN) / (DUTY_CYCLE_MAX - DUTY_CYCLE_MIN) * 180
+    position_y = (duty_cycle_y - DUTY_CYCLE_MIN) / (DUTY_CYCLE_MAX - DUTY_CYCLE_MIN) * 180
 
     return position_x, position_y
 
@@ -87,16 +84,10 @@ def calculate_distance(point1, point2):
     return distance
 
 
-# 온도정보 받아오는 거
-def get_temperature_info():
-    message = ser.readline().decode().strip()
-    temperature = int(message)
-
-    return temperature
 
 # 거리정보 받아오는거
 def get_distance_info():
-    message = ser1.readline().decode().strip()
+    message = ser.readline().decode().strip()
     distance = int(message)
 
     return distance
@@ -134,7 +125,7 @@ def main():
     centers = []
 
     while True:
-        if ser.in_waiting != 0:
+     
             # 시리얼 포트로부터 중심점 좌표를 읽어옴
             message = ser.readline().decode().strip()
             center_x, center_y = map(int, message.split(","))

@@ -1,12 +1,9 @@
-import serial
 import time
 import cv2
 import numpy as np
 import RPi.GPIO as GPIO
-import board
-import busio
 import Adafruit_DHT
-from ctypes import cdll
+import ctypes
 
 
 DHT_PIN = 18
@@ -17,21 +14,22 @@ GPIO.setup(DHT_PIN, GPIO.IN)
 
 
 
+
 class Temperature(object):
     def __init__(self, libPath):
-        self.lib = cdll.LoadLibrary(libPath)
+        self.lib = ctypes.CDLL(libPath)
         self.obj = self.lib.Temperature_new()
 
-    def check(self, tick=0.5):
+    def check(self):
         self.lib.Temperature_check(self.obj)
-        time.sleep(tick)
-        
-def detect_objects(frame):
-    # YOLO configuration
-    net = cv2.dnn.readNet("yolov3-tiny.weights", "yolov3-tiny.cfg")
-    classes = []
-    with open("coco.names", "r") as f:
-        classes = [line.strip() for line in f.readlines()]
+
+    def get_result(self):
+        self.lib.Temperature_get_result.restype = ctypes.c_char_p
+        result = self.lib.Temperature_get_result(self.obj)
+        return result.decode()
+
+
+def detect_objects(frame, net, classes):
     layer_names = net.getLayerNames()
     output_layers = [layer_names[i[0] - 1] for i in net.getUnconnectedOutLayers()]
 
@@ -68,68 +66,84 @@ def detect_objects(frame):
                 }
                 
                 objects.append(obj)
-    
+    print("objects:")
+    print(objects)
+    # 객체 순서대로 반환
     return objects
 
-def measure_temperature(obj_class):
-    if obj_class in ["person", "cat", "dog"]:
-        f = Temperature(libPath='./temperature.so')
-        result = f.check()
-        object_temperature = result.split(", ")[1]
-        return object_temperature
 
-def detect_and_measure_temperature():
-    # Camera operation
-    cap = cv2.VideoCapture(0)
-    print("Camera initialized")
+def measure_temperature(obj_class, temperature_lib):
+    if obj_class in ["person", "cat", "dog"]:
+        temperature_lib.check()
+        result = temperature_lib.get_result()  # 결과 값 얻기
+        temperature_value = result.replace("Object : ", "")
+        print(result)
+        
+        return result
+
+
+
+
+
+
+
+
+
+
+def detect_and_measure_temperature(cap, net, classes):
+    # Read frame from camera
     ret, frame = cap.read()
-    cap.release()
 
     # Object detection
-    objects = detect_objects(frame)
+    objects = detect_objects(frame, net, classes)
     print("Objects detected")
 
+ 
     # Extract center points
-    center_x = 0
-    center_y = 0
+    center_points = []
     num_objects = len(objects)
     for obj in objects:
-        center_x += obj["x"] + obj["w"] / 2
-        center_y += obj["y"] + obj["h"] / 2
-    if num_objects > 0:
-        center_x /= num_objects
-        center_y /= num_objects
-
-    # 중심점을 시리얼 통신으로 보내기
-    serial_port = serial.Serial('/dev/ttyS0', 115200)
-    serial_port.write("Center point: ({}, {})".format(center_x, center_y).encode())
-    serial_port.close()
-
-    # 상황에 따라 온도모듈 선택해서 온도 특정
+        center_x = obj["x"] + obj["w"] / 2
+        center_y = obj["y"] + obj["h"] / 2
+        center_points.append((center_x, center_y))
+    
+    print("center_points :")
+    print(center_points)
+    
+    # Temperature measurement
+    temperature_lib = Temperature(libPath='./temperature.so')
+    
     if num_objects == 1:
-        temperature = measure_temperature(objects)
+        obj_class = objects[0]["class_name"]
+        print(obj_class)
+        temperature = measure_temperature(obj_class, temperature_lib)
         print("Temperature: {} ".format(temperature))
-       
     else:
         # DHT11 
         humidity, temperature = Adafruit_DHT.read_retry(DHT_TYPE, DHT_PIN)
         print("Temperature: {}, Humidity: {}".format(temperature, humidity))
 
-
-    # 온도 정보 통신하기
-    serial_port = serial.Serial('/dev/ttyS0', 115200)
-    serial_port.write("Temperature: {} ".format(temperature).encode())
-    serial_port.close()
-
-     #핀 초기화
+   
+    # 핀 초기화
     GPIO.cleanup()
+
+    return center_points
 
 
 if __name__ == "__main__":
+    # Load YOLO and coco.names
+    net = cv2.dnn.readNet("yolov3-tiny.weights", "yolov3-tiny.cfg")
+    classes = []
+    with open("coco.names", "r") as f:
+        classes = [line.strip() for line in f.readlines()]
+
+    # Camera operation
+    cap = cv2.VideoCapture(0)
+    print("Camera initialized")
+
     while True:
-        detect_and_measure_temperature()
-        time.sleep(1)
+        detect_and_measure_temperature(cap, net, classes)
+     
+        time.sleep(0.5)
 
-
-
-
+ 
