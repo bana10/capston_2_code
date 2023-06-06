@@ -101,6 +101,7 @@ try:
 
         cv2.imshow('asdf', frame)
         if cv2.waitKey(1) == ord('q'):
+            X_Motor(0)
             GPIO.cleanup()
             break
 
@@ -109,4 +110,5 @@ try:
         print(len(boxes))
 
 except KeyboardInterrupt:
+    X_Motor(0)
     GPIO.cleanup()
