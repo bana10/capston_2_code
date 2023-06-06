@@ -75,11 +75,11 @@ while(True):
             if center_y < miny:
                 miny = center_y
 
-        minanglex = int((minx / wp * 90) - Xspin)
-        maxanglex = int((maxx / wp * 90) - Xspin)
+        minanglex = int((minx / wp * (Xspin * 2)) - Xspin)
+        maxanglex = int((maxx / wp * (Xspin * 2)) - Xspin)
 
-        minangley = int((miny / wp * 90) - Yspin)
-        maxangley = int((maxy / wp * 90) - Yspin)
+        minangley = int((miny / hp * (Yspin * 2)) - Yspin)
+        maxangley = int((maxy / hp * (Yspin * 2)) - Yspin)
 
         if goleft:
             X_Motor(minanglex)
