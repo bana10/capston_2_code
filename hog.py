@@ -102,7 +102,7 @@ goleft = True
 X_Motor(0)
 Y_Motor(90)
 
-#temperature_lib = Temperature(libPath="./temperature.so")
+temperature_lib = Temperature(libPath="./temperature.so")
 
 distance = 25
 
@@ -119,12 +119,12 @@ try:
 
         if len(boxes) > 0:
             temperature = 10
-            # if len(boxes) == 1:
-            #     temperature = measure_temperature(temperature_lib)
-            #     print("Temperature: {} ".format(temperature))
-            # else:
-            #     humidity, temperature = Adafruit_DHT.read_retry(DHT_TYPE, DHT_PIN)
-            #     print("Temperature: {}, Humidity: {}".format(temperature, humidity))
+            if len(boxes) == 1:
+                temperature = measure_temperature(temperature_lib)
+                print("Temperature: {} ".format(temperature))
+            else:
+                humidity, temperature = Adafruit_DHT.read_retry(DHT_TYPE, DHT_PIN)
+                print("Temperature: {}, Humidity: {}".format(temperature, humidity))
             
             speed = calculate_speed(temperature, distance)
             print("속도  : %f", speed*1000)
