@@ -102,7 +102,7 @@ goleft = True
 X_Motor(0)
 Y_Motor(0)
 
-temperature_lib = Temperature(libPath='./temperature.so')
+temperature_lib = Temperature(libPath='temperature.so')
 
 distance = 25
 
