@@ -126,7 +126,7 @@ try:
                 humidity, temperature = Adafruit_DHT.read_retry(DHT_TYPE, DHT_PIN)
                 print("Temperature: {}, Humidity: {}".format(temperature, humidity))
             
-            speed = calculate_speed(temperature, distance)
+            speed = calculate_speed(int(temperature), distance)
             print("속도  : %f", speed*1000)
             motor_control(GPIO.HIGH, speed * 1000)
             for (x,y,w,h) in boxes:
