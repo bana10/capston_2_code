@@ -54,7 +54,7 @@ while(True):
     ret, frame = cap.read()
     #gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
 
-    boxes, weights = hog.detectMultiScale(frame, winStride=(16,16))
+    boxes, weights = hog.detectMultiScale(frame, winStride=(8,8))
     maxx = 0
     minx = wp
     maxy = 0
