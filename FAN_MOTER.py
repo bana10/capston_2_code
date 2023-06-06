@@ -29,8 +29,6 @@ def stop_motor():
 
 # 모터 속도를 계산하는 함수
 def calculate_speed(humidity, temperature, distance):
-    if temperature is None or humidity is None:
-        return 0
     wind_speed = 0.42 * (math.sqrt(temperature) - 23.8) * ((100 - humidity) / 10) * math.pow((distance / 10), -0.2)
     return wind_speed
 
@@ -39,7 +37,7 @@ try:
         humidity, temperature = Adafruit_DHT.read_retry(DHT_TYPE, DHT_PIN)
         if humidity is not None and temperature is not None:
             print("Temperature: {}, Humidity: {}".format(temperature, humidity))
-            speed = calculate_speed(humidity, temperature, 80)
+            speed = calculate_speed(int(float(humidity)), int(float(temperature)), 80)
             print("속도: {}".format(speed * 100))
             motor_control(GPIO.HIGH, speed * 100)
         else:
