@@ -23,11 +23,6 @@ def motor_control(direction, speed):
     GPIO.output(IN1, direction)
     pwm.start(speed)
 
-# 모터 정지
-def stop_motor():
-    GPIO.output(IN1, GPIO.LOW)
-    
-    pwm.stop()
 
 # 모터 속도를 계산하는 함수
 def calculate_speed(humidity, temperature, distance):
@@ -35,12 +30,9 @@ def calculate_speed(humidity, temperature, distance):
     return wind_speed
 
 
-
-
 try:
     while True:
-        
-        humidity, temperature = Adafruit_DHT.read_retry(DHT_TYPE, DHT_PIN)
+        humidity,temperature = Adafruit_DHT.read_retry(DHT_TYPE, DHT_PIN)
         print("Temperature: {}, Humidity: {}".format(temperature, humidity))
         speed = calculate_speed(humidity, temperature,80)
         print("속도  : %f",speed*1000)
@@ -49,6 +41,6 @@ try:
 
 
 except KeyboardInterrupt:
-    stop_motor()
     GPIO.cleanup()
 
+GPIO.cleanup()
