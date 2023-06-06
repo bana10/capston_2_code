@@ -1,12 +1,14 @@
 import RPi.GPIO as GPIO
 import time
 import math
+import Adafruit_DHT
 
 # 핀 번호 설정
 ENA = 18  # 모터 A의 enable 핀 (PWM 제어)
 IN1 = 23  # 모터 A의 입력 1
+DHT_PIN = 12
+DHT_TYPE = Adafruit_DHT.DHT11
 
- 
 # GPIO 모드 설정
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(ENA, GPIO.OUT)
@@ -28,34 +30,23 @@ def stop_motor():
     pwm.stop()
 
 # 모터 속도를 계산하는 함수
-def calculate_speed(temperature, distance):
-    if distance < 120:
-        wind_speed = math.sqrt(abs(36 - temperature) / (0.5 * 1005))
-    else:
-        wind_speed = math.sqrt(abs(36 - temperature) / (0.5 * 1005 * (1 - (80 / distance)**2)))
-    return wind_speed
-
-
-def calculate_2_speed(temperature,humidity, distance):
+def calculate_speed(humidity, temperature, distance):
     wind_speed = 0.42 * (math.sqrt(temperature)-23.8)*((100-humidity)/10)*math.pow((distance/10),-0.2)
     return wind_speed
 
 
+
+
 try:
     while True:
-        speed = calculate_speed(32,100)
+        
+        humidity, temperature = Adafruit_DHT.read_retry(DHT_TYPE, DHT_PIN)
+        print("Temperature: {}, Humidity: {}".format(temperature, humidity))
+        speed = calculate_speed(humidity, temperature,80)
         print("속도  : %f",speed*1000)
         motor_control(GPIO.HIGH, speed * 1000)
         time.sleep(10)  
 
-        speed = calculate_speed(34,80)
-        print("속도  : %f",speed*1000)
-        motor_control(GPIO.HIGH, speed * 1000)
-        time.sleep(10) 
-
-        # 모터 정지
-        stop_motor()
-        time.sleep(2)  # 2초간 대기
 
 except KeyboardInterrupt:
     stop_motor()
