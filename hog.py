@@ -100,7 +100,7 @@ Yspin = 20
 goleft = True
 
 X_Motor(0)
-Y_Motor(0)
+Y_Motor(90)
 
 temperature_lib = Temperature(libPath="./temperature.so")
 
@@ -157,7 +157,7 @@ try:
                 print("goright:", maxanglex)
 
             yangleavg = int((minangley + maxangley) / 2)
-            Y_Motor()
+            #Y_Motor()
             print("avgy:", yangleavg)
             goleft = not goleft
 
