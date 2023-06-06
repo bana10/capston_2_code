@@ -6,7 +6,7 @@ import math
 ENA = 18  # 모터 A의 enable 핀 (PWM 제어)
 IN1 = 23  # 모터 A의 입력 1
 
-
+ 
 # GPIO 모드 설정
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(ENA, GPIO.OUT)
@@ -33,6 +33,11 @@ def calculate_speed(temperature, distance):
         wind_speed = math.sqrt(abs(36 - temperature) / (0.5 * 1005))
     else:
         wind_speed = math.sqrt(abs(36 - temperature) / (0.5 * 1005 * (1 - (80 / distance)**2)))
+    return wind_speed
+
+
+def calculate_2_speed(temperature,humidity, distance):
+    wind_speed = 0.42 * (math.sqrt(temperature)-23.8)*((100-humidity)/10)*math.pow((distance/10),-0.2)
     return wind_speed
 
 
