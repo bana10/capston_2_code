@@ -1,0 +1,15 @@
+온도 모듈
+sce = gpio 22
+sdi = gpio 10
+sdd = gpio 9
+sck = gpiio 11
+
+드라이브 모터
+gpio 18
+
+dht 
+gpio 12
+
+모터 
+gpio 13
+gpio 19
