@@ -53,7 +53,7 @@ def Y_Motor(angle):
 
 class Temperature(object):
     def __init__(self, libPath):
-        self.lib = ctypes.CDLL("temperature.so")
+        self.lib = ctypes.CDLL("./temperature.so")
         self.obj = self.lib.Temperature_new()
 
     def check(self):
