@@ -26,6 +26,8 @@ GPIO.setup(x_servo_pin, GPIO.OUT)
 GPIO.setup(y_servo_pin, GPIO.OUT)
 GPIO.setup(ENA, GPIO.OUT)
 GPIO.setup(IN1, GPIO.OUT)
+GPIO.setup(DHT_PIN, GPIO.IN)
+
 
 x_pwm = GPIO.PWM(x_servo_pin, 50) 
 y_pwm = GPIO.PWM(y_servo_pin, 50) 

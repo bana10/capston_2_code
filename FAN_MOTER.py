@@ -13,6 +13,7 @@ DHT_TYPE = Adafruit_DHT.DHT11
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(ENA, GPIO.OUT)
 GPIO.setup(IN1, GPIO.OUT)
+GPIO.setup(DHT_PIN, GPIO.IN)
 
 # PWM 객체 생성
 pwm = GPIO.PWM(ENA, 100)  # 100Hz의 PWM 주파수
