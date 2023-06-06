@@ -25,15 +25,5 @@ def RC_Motor(angle):
 
 RC_Motor(0)
 time.sleep(10)
-while True:
-    RC_Motor(-90)
-    time.sleep(1)
-    RC_Motor(-45)
-    time.sleep(1)
-    RC_Motor(0)
-    time.sleep(1)
-    RC_Motor(45)
-    time.sleep(1)
-    RC_Motor(90)
-    time.sleep(1)
+
 
