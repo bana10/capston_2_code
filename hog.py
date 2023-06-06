@@ -68,8 +68,6 @@ class Temperature(object):
 def measure_temperature(temperature_lib):
     temperature_lib.check()
     result = temperature_lib.get_result()  # 결과 값 얻기
-    result = result.replace("Object : ", "")
-    print(result)
 
     return result
 
@@ -126,7 +124,7 @@ try:
                 humidity, temperature = Adafruit_DHT.read_retry(DHT_TYPE, DHT_PIN)
                 print("Temperature: {}, Humidity: {}".format(temperature, humidity))
             
-            speed = calculate_speed(int(temperature), distance)
+            speed = calculate_speed(int(float(temperature)), distance)
             print("속도  : %f", speed*1000)
             motor_control(GPIO.HIGH, speed * 1000)
             for (x,y,w,h) in boxes:
