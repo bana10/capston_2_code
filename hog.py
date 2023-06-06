@@ -124,9 +124,15 @@ try:
                 humidity, temperature = Adafruit_DHT.read_retry(DHT_TYPE, DHT_PIN)
                 print("Temperature: {}, Humidity: {}".format(temperature, humidity))
             
-            speed = calculate_speed(int(float(temperature)), distance)
-            print("속도  : %f", speed*1000)
-            motor_control(GPIO.HIGH, speed * 1000)
+            speed = calculate_speed(int(float(temperature)), distance) * 1000
+            print("speed : %f", speed)
+
+            if speed >= 100 :
+                speed = 100
+            elif speed <= 0:
+                speed = 0
+            
+            motor_control(GPIO.HIGH, speed)
             for (x,y,w,h) in boxes:
                 cv2.rectangle(frame, (x,y), (x + w, y + h), (50,200,50), 2)
                 center_x = x + int(w / 2)
