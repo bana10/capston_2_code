@@ -1,7 +1,7 @@
 import numpy as np
 import time
 import RPi.GPIO as GPIO
-import Adafruit_DHT
+#import Adafruit_DHT
 import ctypes
 import math
 
@@ -11,8 +11,8 @@ prevt = time.time()
 ENA = 18  # 모터 A의 enable 핀 (PWM 제어)
 IN1 = 23  # 모터 A의 입력 1
 
-DHT_PIN = 12
-DHT_TYPE = Adafruit_DHT.DHT11
+# DHT_PIN = 12
+# DHT_TYPE = Adafruit_DHT.DHT11
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(ENA, GPIO.OUT)
@@ -60,16 +60,16 @@ def calculate_speed(temperature, distance):
 
 temperature_lib = Temperature(libPath="./temperature.so")
 
-distance = 25
+distance = 150
 
 try:
     while(True):
-        humidity, temperature = Adafruit_DHT.read_retry(
-            DHT_TYPE, DHT_PIN)
-        print("Temperature: {}, Humidity: {}".format(
-            temperature, humidity))
-        speed = calculate_speed(int(float(temperature)), distance) * 1000
-        print("speed : %f", speed)
+        temperature_lib.check()
+        result = temperature_lib.get_result()  # 결과 값 얻기
+        temperature_value = result.replace("Object : ", "")
+        print(result)
+        speed = calculate_speed(int(float(result)),200) *1000
+        print("speed : ", speed)
 
         if speed >= 100:
             speed = 100
