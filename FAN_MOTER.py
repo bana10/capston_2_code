@@ -43,22 +43,26 @@ def stop_motor():
 
 # 모터 속도를 계산하는 함수
 def calculate_speed(temperature, distance):
-    wind_speed = 0.35* abs(36-temperature)*math.pow(distance,0.5)
+    wind_speed = 0.63 * math.sqrt((36 - temperature) / (distance - 0.2))
     return wind_speed
 
 
 try:
     while True:
+        start_time = time.time()
         temperature_lib = Temperature(libPath='./temperature.so')
         temperature_lib.check()
         result = temperature_lib.get_result()  # 결과 값 얻기
         temperature_value = result.replace("Object : ", "")
         print(result)
-        speed = calculate_speed(int(float(result)),200)
-        if(speed>=0.1): speed=0.1
-        print("속도  : ",speed*1000)
-        motor_control(GPIO.HIGH, speed * 1000)
-        time.sleep(5)  
+        speed = calculate_speed(int(float(result)),100)
+        if(speed>=0.2): speed=0.2
+        print("속도  : ",speed*500)
+        motor_control(GPIO.HIGH, speed * 500)
+        time.sleep(1)
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        print(elapsed_time) 
 
       
 except KeyboardInterrupt:

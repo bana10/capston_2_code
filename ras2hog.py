@@ -51,11 +51,8 @@ def stop_motor():
 
 
 def calculate_speed(temperature, distance):
-    if distance < 120:
-        wind_speed = math.sqrt(abs(36 - temperature) / (0.5 * 1005))
-    else:
-        wind_speed = math.sqrt(abs(36 - temperature) /
-                               (0.5 * 1005 * (1 - (80 / distance)**2)))
+    
+    wind_speed = 0.63 * math.sqrt((36 - temperature) / (distance - 0.2))
     return wind_speed
 
 temperature_lib = Temperature(libPath="./temperature.so")
@@ -64,11 +61,12 @@ distance = 150
 
 try:
     while(True):
+        
         temperature_lib.check()
         result = temperature_lib.get_result()  # 결과 값 얻기
         temperature_value = result.replace("Object : ", "")
         print(result)
-        speed = calculate_speed(int(float(result)),200) *1000
+        speed = calculate_speed(int(float(result)),100) *500
         print("speed : ", speed)
 
         if speed >= 100:
