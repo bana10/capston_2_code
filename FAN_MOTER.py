@@ -1,18 +1,31 @@
 import RPi.GPIO as GPIO
 import time
 import math
-import Adafruit_DHT
+import ctypes
 
 # 핀 번호 설정
 ENA = 18  # 모터 A의 enable 핀 (PWM 제어)
 IN1 = 23  # 모터 A의 입력 1
-DHT_PIN = 12
-DHT_TYPE = Adafruit_DHT.DHT11
+
 
 # GPIO 모드 설정
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(ENA, GPIO.OUT)
 GPIO.setup(IN1, GPIO.OUT)
+
+
+class Temperature(object):
+    def __init__(self, libPath):
+        self.lib = ctypes.CDLL(libPath)
+        self.obj = self.lib.Temperature_new()
+
+    def check(self):
+        self.lib.Temperature_check(self.obj)
+
+    def get_result(self):
+        self.lib.Temperature_get_result.restype = ctypes.c_char_p
+        result = self.lib.Temperature_get_result(self.obj)
+        return result.decode()
 
 # PWM 객체 생성
 pwm = GPIO.PWM(ENA, 100)  # 100Hz의 PWM 주파수
@@ -22,33 +35,36 @@ def motor_control(direction, speed):
     GPIO.output(IN1, direction)
     pwm.start(speed)
 
-# 모터 정지 함수
+# 모터 정지
 def stop_motor():
     GPIO.output(IN1, GPIO.LOW)
+    
     pwm.stop()
 
 # 모터 속도를 계산하는 함수
-def calculate_speed(humidity, temperature, distance):
-    if temperature is None or humidity is None:
-        return 0
-    wind_speed = 0.42 * (math.sqrt(temperature) - 23.8) * ((100 - humidity) / 10) * math.pow((distance / 10), -0.2)
+def calculate_speed(temperature, distance):
+    wind_speed = 0.35* abs(36-temperature)*math.pow(distance,0.5)
     return wind_speed
+
 
 try:
     while True:
-        humidity, temperature = Adafruit_DHT.read_retry(DHT_TYPE, DHT_PIN)
-        if humidity is not None and temperature is not None:
-            print("Temperature: {}, Humidity: {}".format(temperature, humidity))
-            speed = calculate_speed(humidity, temperature, 80)
-            print("속도: {}".format(speed * 100))
-            motor_control(GPIO.HIGH, speed * 100)
-        else:
-            print("온도 및 습도 읽기 실패")
-            stop_motor()
-        time.sleep(10)
+        temperature_lib = Temperature(libPath='./temperature.so')
+        temperature_lib.check()
+        result = temperature_lib.get_result()  # 결과 값 얻기
+        temperature_value = result.replace("Object : ", "")
+        print(result)
+        speed = calculate_speed(int(float(result)),200)
+        if(speed>=0.1): speed=0.1
+        print("속도  : ",speed*1000)
+        motor_control(GPIO.HIGH, speed * 1000)
+        time.sleep(5)  
 
+      
 except KeyboardInterrupt:
     stop_motor()
     GPIO.cleanup()
 
-GPIO.cleanup()
+
+
+
