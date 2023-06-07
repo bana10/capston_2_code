@@ -44,7 +44,7 @@ def Y_Motor(angle):
 wp = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
 hp = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-Xspin = 60
+Xspin = 45
 Yspin = 20
 
 goleft = True
