@@ -36,3 +36,4 @@ time.sleep(1)
 RC_Motor(0)
 time.sleep(1)
 
+GPIO.cleanup()
