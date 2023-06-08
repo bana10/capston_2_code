@@ -111,10 +111,10 @@ try:
             maxangley = int((maxy / hp * (Yspin * 2)) - Yspin)
 
             if goleft:
-                X_Motor(minanglex)
+                X_Motor( -1  * minanglex)
                 print("goleft:", minanglex)
             else:
-                X_Motor(maxanglex)
+                X_Motor(-1 * maxanglex)
                 print("goright:", maxanglex)
 
             yangleavg = int((minangley + maxangley) / 2)
