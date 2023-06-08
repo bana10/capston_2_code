@@ -26,7 +26,7 @@ def RC_Motor(angle):
 
 while True:
     print('angle:')
-    a = int(input)
+    a = int(input())
     if a == -1:
         break
     RC_Motor(a)
