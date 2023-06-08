@@ -37,4 +37,6 @@ def RC_Motor2(angle):
 
 RC_Motor2(90)
 time.sleep(1)
+RC_Motor2(0)
+time.sleep(1)
 GPIO.cleanup()
