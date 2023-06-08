@@ -128,11 +128,11 @@ try:
             prev_x = 0
             prev_y = 0
 
-        # cv2.imshow('asdf', frame)
-        # if cv2.waitKey(1) == ord('q'):
-        #     X_Motor(0)
-        #     GPIO.cleanup()
-        #     break
+        cv2.imshow('asdf', frame)
+        if cv2.waitKey(1) == ord('q'):
+            X_Motor(0)
+            GPIO.cleanup()
+            break
 
         print(time.time() - prevt)
         prevt = time.time()
