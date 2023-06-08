@@ -100,10 +100,10 @@ try:
                     class_ids.append(class_id)
                     centers.append((center_x, center_y))
         
-        boxes = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
-        if len(boxes) > 0:
+        indexed = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
+        if len(indexed) > 0:
             inhuman = 0
-            for i in boxes.flatten():
+            for i in indexed.flatten():
                 x, y, w, h = boxes[i]
                 label = str(classes[class_ids[i]])
                 
