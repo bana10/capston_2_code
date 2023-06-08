@@ -23,6 +23,8 @@ y_pwm.start(0)
 prev_x = 0
 prev_y = 0
 
+offsetx = 20
+
 net = cv2.dnn.readNet("yolov2-tiny.weights", "yolov2-tiny.cfg")
 classes = []
 with open("coco.names", "r") as f:
@@ -56,8 +58,8 @@ Yspin = 20
 
 goleft = True
 
-X_Motor(0)
-Y_Motor(90)
+X_Motor(offsetx)
+Y_Motor(0)
 
 try:
     while(True):
@@ -129,17 +131,17 @@ try:
                 maxangley = int((maxy / hp * (Yspin * 2)) - Yspin)
 
                 if goleft:
-                    X_Motor(-1 * minanglex)
+                    X_Motor(-1 * minanglex + offsetx)
                     print("goleft:",  -1 * minanglex)
                 else:
-                    X_Motor(-1 * maxanglex)
+                    X_Motor(-1 * maxanglex + offsetx)
                     print("goright:",  -1 * maxanglex)
 
                 yangleavg = int((minangley + maxangley) / 2)
-                if yangleavg > 60:
-                    Y_Motor(yangleavg)
+                if yangleavg < -45:
+                    Y_Motor(-45)
                 else:
-                    Y_Motor(60)
+                    Y_Motor(yangleavg)
                 print("avgy:", yangleavg)
                 goleft = not goleft
         else:
