@@ -109,7 +109,7 @@ try:
                 
                 if label in ['person']:
                     inhuman += 1
-                    cv2.rectangle(frame, (x, y), (x + w, y + h), (50, 200, 50), 2)
+                    cv2.rectangle(frame, (int(x), int(y)), (int(x + w), int(y + h)), (50, 200, 50), 2)
                     center_x = x + int(w / 2)
                     center_y = y + int(h / 2)
 
