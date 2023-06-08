@@ -15,22 +15,38 @@ pwm.start(0)
 pwm2.start(0)
 
 
-def RC_Motor(angle, a2):
+def RC_Motor(angle):
     # angle : -90도 ~ +90도
     if angle < -90:
         angle = -90
     if angle > 90:
         angle = 90
     duty_cycle = (angle + 90) / 18 + 2.5
-    dc2 = (a2+90) / 18 + 2.5
     pwm.ChangeDutyCycle(duty_cycle)
-    pwm2.ChangeDutyCycle(dc2)
 
 
-RC_Motor(-90, 9)
+def RC_Motor2(angle):
+    # angle : -90도 ~ +90도
+    if angle < -90:
+        angle = -90
+    if angle > 90:
+        angle = 90
+    duty_cycle = (angle + 90) / 18 + 2.5
+    pwm2.ChangeDutyCycle(duty_cycle)
+
+
+RC_Motor(-90)
 time.sleep(1)
-RC_Motor(90, 90)
+RC_Motor(0)
 time.sleep(1)
-RC_Motor(0, 90)
+RC_Motor(90)
+time.sleep(1)
+RC_Motor(0)
+time.sleep(1)
+RC_Motor2(-90)
+time.sleep(1)
+RC_Motor2(0)
+time.sleep(1)
+RC_Motor2(90)
 time.sleep(1)
 GPIO.cleanup()
