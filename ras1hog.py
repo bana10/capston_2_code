@@ -78,19 +78,19 @@ try:
                 center_x = x + int(w / 2)
                 center_y = y + int(h / 2)
 
-                if len(boxes) == 1:
-                    if prev_x != 0 and prev_y != 0:
-                        dat = [[prev_x, prev_y, center_x, center_y]]
-                        p_x = int(x_model.predict(dat))
-                        p_y = int(y_model.predict(dat))
-                        prev_x = center_x
-                        prev_y = center_y
+                # if len(boxes) == 1:
+                #     if prev_x != 0 and prev_y != 0:
+                #         dat = [[prev_x, prev_y, center_x, center_y]]
+                #         p_x = int(x_model.predict(dat))
+                #         p_y = int(y_model.predict(dat))
+                #         prev_x = center_x
+                #         prev_y = center_y
 
-                        center_x = p_x
-                        center_y = p_y
-                    else:
-                        prev_y = center_y
-                        prev_x = center_x
+                #         center_x = p_x
+                #         center_y = p_y
+                #     else:
+                #         prev_y = center_y
+                #         prev_x = center_x
 
                 if center_x > maxx:
                     maxx = center_x
