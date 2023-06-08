@@ -112,10 +112,10 @@ try:
 
             if goleft:
                 X_Motor( -1  * minanglex)
-                print("goleft:", minanglex)
+                print("goleft:",  -1 * minanglex)
             else:
                 X_Motor(-1 * maxanglex)
-                print("goright:", maxanglex)
+                print("goright:",  -1  * maxanglex)
 
             yangleavg = int((minangley + maxangley) / 2)
             if yangleavg > 60:
