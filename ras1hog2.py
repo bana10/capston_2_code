@@ -105,6 +105,8 @@ try:
         indexed = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
         if len(indexed) > 0:
             inhuman = 0
+            tminy = 640
+            tmaxy = 0
             for i in indexed.flatten():
                 x, y, w, h = boxes[i]
                 label = str(classes[class_ids[i]])
@@ -117,8 +119,10 @@ try:
 
                     if center_x > maxx:
                         maxx = center_x
+                        tmaxy = center_y
                     if center_x < minx:
                         minx = center_x
+                        tminy = center_y
                     if center_y > maxy:
                         maxy = center_y
                     if center_y < miny:
@@ -130,19 +134,25 @@ try:
                 minangley = int((miny / hp * (Yspin * 2)) - Yspin)
                 maxangley = int((maxy / hp * (Yspin * 2)) - Yspin)
 
+                minangleyt = int((tminy / hp * (Yspin * 2)) - Yspin)
+                maxangleyt = int((tmaxy / hp * (Yspin * 2)) - Yspin)
+
                 if goleft:
                     X_Motor(-1 * minanglex + offsetx)
+                    Y_Motor(minangleyt)
                     print("goleft:",  -1 * minanglex)
                 else:
                     X_Motor(-1 * maxanglex + offsetx)
+                    Y_Motor(maxangleyt)
                     print("goright:",  -1 * maxanglex)
+                    
 
-                yangleavg = int((minangley + maxangley) / 2)
-                if yangleavg < -45:
-                    Y_Motor(-45)
-                else:
-                    Y_Motor(yangleavg)
-                print("avgy:", yangleavg)
+                # yangleavg = int((minangley + maxangley) / 2)
+                # if yangleavg < -45:
+                #     Y_Motor(-45)
+                # else:
+                #     Y_Motor(yangleavg)
+                #print("avgy:", yangleavg)
                 goleft = not goleft
         else:
             prev_x = 0
