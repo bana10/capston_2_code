@@ -35,10 +35,10 @@ def RC_Motor2(angle):
     pwm2.ChangeDutyCycle(duty_cycle)
 
 
-RC_Motor2(90)
+RC_Motor2(90) #아래
 time.sleep(1)
 RC_Motor2(0)
 time.sleep(1)
-RC_Motor2(-90)
-time.sleep(1)
+#RC_Motor2(-60) #위
+#time.sleep(1)
 GPIO.cleanup()
